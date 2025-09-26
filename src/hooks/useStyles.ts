@@ -251,6 +251,12 @@ export const useMessageBasedPlayerViewStyles = () => {
         setupText: "text-xl text-gray-600",
         completedContainer: "flex-1 flex flex-col items-center justify-center text-center",
         completedTitle: "text-3xl font-bold text-gray-800 mb-4",
+        // Floating players styles
+        floatingPlayersContainer: "fixed bottom-4 left-4 right-4 pointer-events-none z-30",
+        floatingPlayersWrapper: "flex justify-between items-end",
+        floatingPlayerGroup: "flex flex-col space-y-3",
+        floatingPlayerIcon: "bg-white rounded-full shadow-lg p-3 border-2 border-blue-300 pointer-events-auto transform hover:scale-110 transition-transform",
+        floatingPlayerLabel: "text-sm font-semibold text-center bg-white rounded px-2 py-1 shadow-sm border max-w-24 truncate mt-1",
         // Scoreboard styles
         scoreboardContainer: "bg-white rounded-lg shadow-lg p-6 mb-6",
         scoreboardTitle: "text-2xl font-bold text-gray-800 mb-4",

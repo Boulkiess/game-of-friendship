@@ -3,6 +3,14 @@ import { GameContext, Question } from '../types';
 import { useMessageBasedPlayerViewStyles } from '../hooks/useStyles';
 import { EntityDisplay, createEntityInfo } from './shared/EntityDisplay';
 import { CircularTimer } from './shared/CircularTimer';
+import { PlayerAvatar } from './shared/PlayerAvatar';
+
+interface InvolvedPlayer {
+  player: any;
+  role: string;
+  teamSide: 'left' | 'right';
+  teamName?: string;
+}
 
 export const PlayerView: React.FC = () => {
   const [gameState, setGameState] = useState<GameContext | null>(null);
@@ -125,6 +133,120 @@ export const PlayerView: React.FC = () => {
     );
   };
 
+  const getInvolvedPlayers = (): InvolvedPlayer[] => {
+    if (!gameState) return [];
+
+    const players: InvolvedPlayer[] = [];
+
+    // Add selected answerer for individual/teams modes
+    if (gameState.selectedAnswerer && (gameState.answerMode === 'individual' || gameState.answerMode === 'teams')) {
+      const entity = createEntityInfo(gameState.selectedAnswerer, gameState.players, gameState.teams);
+      if (entity.type === 'player' && entity.data) {
+        players.push({ player: entity.data as any, role: 'answerer', teamSide: 'left' });
+      } else if (entity.type === 'team' && entity.data) {
+        // For teams, add all team members on the same side
+        const team = entity.data as any;
+        team.players.forEach((player: any) => {
+          players.push({ player, role: 'team member', teamSide: 'left', teamName: team.name });
+        });
+      }
+    }
+
+    // Add opponents for duel modes
+    if (gameState.answerMode === 'duel' || gameState.answerMode === 'teams-duel') {
+      if (gameState.selectedOpponent1) {
+        const entity1 = createEntityInfo(gameState.selectedOpponent1, gameState.players, gameState.teams);
+        if (entity1.type === 'player' && entity1.data) {
+          players.push({ player: entity1.data as any, role: 'opponent 1', teamSide: 'left' });
+        } else if (entity1.type === 'team' && entity1.data) {
+          const team = entity1.data as any;
+          team.players.forEach((player: any) => {
+            players.push({ player, role: 'team 1', teamSide: 'left', teamName: team.name });
+          });
+        }
+      }
+
+      if (gameState.selectedOpponent2) {
+        const entity2 = createEntityInfo(gameState.selectedOpponent2, gameState.players, gameState.teams);
+        if (entity2.type === 'player' && entity2.data) {
+          players.push({ player: entity2.data as any, role: 'opponent 2', teamSide: 'right' });
+        } else if (entity2.type === 'team' && entity2.data) {
+          const team = entity2.data as any;
+          team.players.forEach((player: any) => {
+            players.push({ player, role: 'team 2', teamSide: 'right', teamName: team.name });
+          });
+        }
+      }
+    }
+
+    // Add champions for champions mode
+    if (gameState.answerMode === 'champions' && gameState.selectedChampions) {
+      const teamNames = Array.from(gameState.selectedChampions.keys());
+      gameState.selectedChampions.forEach((champions, teamName) => {
+        const teamIndex = teamNames.indexOf(teamName);
+        const teamSide = teamIndex % 2 === 0 ? 'left' : 'right';
+
+        champions.forEach(championName => {
+          const player = gameState.players.find(p => p.name === championName);
+          if (player) {
+            players.push({
+              player,
+              role: `${teamName} champion`,
+              teamSide,
+              teamName
+            });
+          }
+        });
+      });
+    }
+
+    return players;
+  };
+
+  const renderFloatingPlayers = () => {
+    const involvedPlayers = getInvolvedPlayers();
+
+    if (involvedPlayers.length === 0) return null;
+
+    // Group players by team side
+    const leftPlayers = involvedPlayers.filter(p => p.teamSide === 'left');
+    const rightPlayers = involvedPlayers.filter(p => p.teamSide === 'right');
+
+    return (
+      <div className={styles.floatingPlayersContainer}>
+        <div className={styles.floatingPlayersWrapper}>
+          {/* Left side players */}
+          <div className={styles.floatingPlayerGroup}>
+            {leftPlayers.map(({ player, role, teamName }, index) => (
+              <div key={`left-${player.name}-${index}`} className="flex flex-col items-center">
+                <div className={styles.floatingPlayerIcon}>
+                  <PlayerAvatar player={player} size="large" />
+                </div>
+                <div className={styles.floatingPlayerLabel} title={`${player.name} - ${role}`}>
+                  {player.name}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Right side players */}
+          <div className={styles.floatingPlayerGroup}>
+            {rightPlayers.map(({ player, role, teamName }, index) => (
+              <div key={`right-${player.name}-${index}`} className="flex flex-col items-center">
+                <div className={styles.floatingPlayerIcon}>
+                  <PlayerAvatar player={player} size="large" />
+                </div>
+                <div className={styles.floatingPlayerLabel} title={`${player.name} - ${role}`}>
+                  {player.name}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderCurrentQuestion = () => {
     if (!gameState.displayedQuestion) return null;
 
@@ -186,6 +308,7 @@ export const PlayerView: React.FC = () => {
             )}
             {renderTimer()}
             {renderScoreboard()}
+            {renderFloatingPlayers()}
           </div>
         )}
 
