@@ -5,7 +5,7 @@ import { ScoreboardModal } from '../shared/ScoreboardModal';
 import { usePlayerViewStyles } from '../../hooks/useStyles';
 
 export const PlayerView: React.FC = () => {
-  const { gameState, showScoreboard, setShowScoreboard } = useGame();
+  const { gameState, scoreboardMode, setScoreboardMode } = useGame();
   const styles = usePlayerViewStyles();
 
   return (
@@ -25,8 +25,8 @@ export const PlayerView: React.FC = () => {
         </div>
 
         <ScoreboardModal
-          isOpen={showScoreboard}
-          onClose={() => setShowScoreboard(false)}
+          isOpen={scoreboardMode !== 'hidden'}
+          onClose={() => setScoreboardMode('hidden')}
         />
       </div>
     </div>

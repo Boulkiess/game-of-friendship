@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect, useRef } from 'react';
-import { GameContext, Player, Team, Question, GameState, TimerState, AnswerMode } from '../types';
+import { GameContext, Player, Team, Question, GameState, TimerState, AnswerMode, ScoreboardMode } from '../types';
 import { loadQuestionsFromYAML, loadGameDataFromYAML } from '../utils/yamlLoader';
 
 interface GameContextType extends GameContext {
@@ -26,7 +26,7 @@ interface GameContextType extends GameContext {
   clearSelectedOpponents: () => void;
   setSelectedChampions: (teamName: string, champions: string[]) => void;
   clearSelectedChampions: () => void;
-  setShowScoreboard: (show: boolean) => void;
+  setScoreboardMode: (mode: ScoreboardMode) => void;
 }
 
 type GameAction =
@@ -47,7 +47,7 @@ type GameAction =
   | { type: 'CLEAR_SELECTED_OPPONENTS' }
   | { type: 'SET_SELECTED_CHAMPIONS'; payload: { teamName: string; champions: string[] } }
   | { type: 'CLEAR_SELECTED_CHAMPIONS' }
-  | { type: 'SET_SHOW_SCOREBOARD'; payload: boolean };
+  | { type: 'SET_SCOREBOARD_MODE'; payload: ScoreboardMode };
 
 const initialState: GameContext = {
   players: [],
@@ -66,7 +66,7 @@ const initialState: GameContext = {
   selectedOpponent1: undefined,
   selectedOpponent2: undefined,
   selectedChampions: undefined,
-  showScoreboard: false
+  scoreboardMode: 'hidden'
 };
 
 function gameReducer(state: GameContext, action: GameAction): GameContext {
@@ -130,8 +130,8 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
       return { ...state, selectedChampions: newChampions };
     case 'CLEAR_SELECTED_CHAMPIONS':
       return { ...state, selectedChampions: undefined };
-    case 'SET_SHOW_SCOREBOARD':
-      return { ...state, showScoreboard: action.payload };
+    case 'SET_SCOREBOARD_MODE':
+      return { ...state, scoreboardMode: action.payload };
     default:
       return state;
   }
@@ -313,8 +313,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'SET_DISPLAYED_QUESTION', payload: null });
   };
 
-  const setShowScoreboard = (show: boolean) => {
-    dispatch({ type: 'SET_SHOW_SCOREBOARD', payload: show });
+  const setScoreboardMode = (mode: ScoreboardMode) => {
+    dispatch({ type: 'SET_SCOREBOARD_MODE', payload: mode });
   };
 
   const value: GameContextType = {
@@ -342,7 +342,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     clearSelectedOpponents,
     setSelectedChampions,
     clearSelectedChampions,
-    setShowScoreboard
+    setScoreboardMode
   };
 
   return (

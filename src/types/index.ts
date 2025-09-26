@@ -30,6 +30,8 @@ export interface TimerState {
 
 export type AnswerMode = 'individual' | 'duel' | 'teams' | 'teams-duel' | 'champions';
 
+export type ScoreboardMode = 'players' | 'teams' | 'hidden';
+
 export interface GameContext {
   players: Player[];
   teams: Team[];
@@ -44,7 +46,7 @@ export interface GameContext {
   selectedOpponent1?: string; // First opponent in duel modes
   selectedOpponent2?: string; // Second opponent in duel modes
   selectedChampions?: Map<string, string[]>; // Team name -> selected champions
-  showScoreboard: boolean; // Whether to show scoreboard to players
+  scoreboardMode: ScoreboardMode; // Which scoreboard to show to players
 }
 
 export interface QuestionFilters {

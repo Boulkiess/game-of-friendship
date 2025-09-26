@@ -39,7 +39,7 @@ export const PlayerView: React.FC = () => {
   }
 
   const renderScoreboard = () => {
-    if (!gameState.showScoreboard) return null;
+    if (gameState.scoreboardMode === 'hidden') return null;
 
     const entries = Array.from(gameState.scores.entries()).sort((a, b) => b[1] - a[1]);
 
@@ -72,35 +72,81 @@ export const PlayerView: React.FC = () => {
       };
     };
 
+    // Filter scores based on display mode
+    const filteredScores = entries.filter(([name]) => {
+      const item = getItemInfo(name);
+      if (gameState.scoreboardMode === 'players') return item.type === 'player';
+      if (gameState.scoreboardMode === 'teams') return item.type === 'team';
+      return true;
+    });
+
     const renderAvatar = (item: ReturnType<typeof getItemInfo>) => {
       const sizeClasses = 'w-10 h-10 text-sm';
 
       if (item.type === 'team') {
-        if (item.profilePicture) {
+        // Render stacked team member avatars
+        if (item.players && item.players.length > 0) {
+          const maxVisible = 4;
+          const visiblePlayers = item.players.slice(0, maxVisible);
+
           return (
-            <div className="flex items-center">
-              <img
-                src={item.profilePicture}
-                alt={item.name}
-                className={`${sizeClasses} rounded-full object-cover`}
-                onError={(e) => {
-                  const img = e.currentTarget;
-                  const placeholder = img.nextElementSibling as HTMLElement;
-                  img.style.display = 'none';
-                  if (placeholder) {
-                    placeholder.style.display = 'flex';
-                  }
-                }}
-              />
-              <div
-                className={`${sizeClasses} rounded-full bg-blue-300 flex items-center justify-center text-blue-800 font-semibold`}
-                style={{ display: 'none' }}
-              >
-                T
-              </div>
+            <div className="relative flex items-center" style={{ width: '60px', height: '40px' }}>
+              {visiblePlayers.map((player, index) => {
+                const zIndex = visiblePlayers.length - index;
+                const leftOffset = index * 12; // 12px offset for each subsequent avatar
+
+                if (player.profilePicture) {
+                  return (
+                    <div
+                      key={player.name}
+                      className="absolute"
+                      style={{ left: `${leftOffset}px`, zIndex }}
+                    >
+                      <img
+                        src={player.profilePicture}
+                        alt={player.name}
+                        className={`${sizeClasses} rounded-full object-cover border-2 border-white shadow-sm`}
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          const placeholder = img.nextElementSibling as HTMLElement;
+                          img.style.display = 'none';
+                          if (placeholder) {
+                            placeholder.style.display = 'flex';
+                          }
+                        }}
+                      />
+                      <div
+                        className={`${sizeClasses} rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold border-2 border-white shadow-sm`}
+                        style={{ display: 'none' }}
+                      >
+                        {player.name.charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={player.name}
+                    className={`absolute ${sizeClasses} rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold border-2 border-white shadow-sm`}
+                    style={{ left: `${leftOffset}px`, zIndex }}
+                  >
+                    {player.name.charAt(0).toUpperCase()}
+                  </div>
+                );
+              })}
+              {item.players.length > maxVisible && (
+                <div
+                  className="absolute w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-semibold text-xs border-2 border-white shadow-sm"
+                  style={{ left: `${maxVisible * 12}px`, zIndex: 0 }}
+                >
+                  +{item.players.length - maxVisible}
+                </div>
+              )}
             </div>
           );
         }
+
         return (
           <div className={`${sizeClasses} rounded-full bg-blue-300 flex items-center justify-center text-blue-800 font-semibold`}>
             T
@@ -150,54 +196,6 @@ export const PlayerView: React.FC = () => {
       );
     };
 
-    const renderTeamMembers = (item: ReturnType<typeof getItemInfo>) => {
-      if (item.type !== 'team' || !item.players?.length) return null;
-
-      return (
-        <div className="flex items-center space-x-1 ml-2">
-          <span className="text-xs text-gray-500">Members:</span>
-          <div className="flex -space-x-1">
-            {item.players.slice(0, 3).map((player, index) => (
-              <div key={player.name} className="relative" style={{ zIndex: 10 - index }}>
-                {player.profilePicture ? (
-                  <div className="flex items-center">
-                    <img
-                      src={player.profilePicture}
-                      alt={player.name}
-                      className="w-6 h-6 rounded-full object-cover border border-white"
-                      onError={(e) => {
-                        const img = e.currentTarget;
-                        const placeholder = img.nextElementSibling as HTMLElement;
-                        img.style.display = 'none';
-                        if (placeholder) {
-                          placeholder.style.display = 'flex';
-                        }
-                      }}
-                    />
-                    <div
-                      className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold text-xs border border-white"
-                      style={{ display: 'none' }}
-                    >
-                      {player.name.charAt(0).toUpperCase()}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold text-xs border border-white">
-                    {player.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-            ))}
-            {item.players.length > 3 && (
-              <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-600 border-2 border-white">
-                +{item.players.length - 3}
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    };
-
     const getRankColor = (index: number) => {
       switch (index) {
         case 0: return 'text-yellow-600'; // Gold
@@ -216,11 +214,15 @@ export const PlayerView: React.FC = () => {
       }
     };
 
+    const getTitle = () => {
+      return gameState.scoreboardMode === 'players' ? 'Player Leaderboard' : 'Team Leaderboard';
+    };
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden">
           <div className="flex justify-between items-center p-4 border-b">
-            <h2 className="text-xl font-semibold">Scoreboard</h2>
+            <h2 className="text-xl font-semibold">{getTitle()}</h2>
             <button
               onClick={() => window.opener?.postMessage({ type: 'HIDE_SCOREBOARD' }, window.location.origin)}
               className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
@@ -230,7 +232,7 @@ export const PlayerView: React.FC = () => {
           </div>
           <div className="p-4 overflow-y-auto">
             <div className="space-y-3">
-              {entries.map(([name, score], index) => {
+              {filteredScores.map(([name, score], index) => {
                 const item = getItemInfo(name);
 
                 return (
@@ -256,7 +258,6 @@ export const PlayerView: React.FC = () => {
                             {item.type}
                           </span>
                         </div>
-                        {renderTeamMembers(item)}
                       </div>
                     </div>
 
@@ -267,9 +268,9 @@ export const PlayerView: React.FC = () => {
                 );
               })}
 
-              {entries.length === 0 && (
+              {filteredScores.length === 0 && (
                 <div className="text-center text-gray-500 py-4">
-                  No scores yet
+                  No {gameState.scoreboardMode === 'players' ? 'player' : 'team'} scores yet
                 </div>
               )}
             </div>
