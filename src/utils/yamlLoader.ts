@@ -51,9 +51,16 @@ export const loadGameDataFromYAML = async (yamlContent: string): Promise<GameDat
     }));
 
     const players: Player[] = data.players
-      ? data.players.map((p: any) => ({
-        name: typeof p === 'string' ? p : p.name
-      }))
+      ? data.players.map((p: any) => {
+        if (typeof p === 'string') {
+          return { name: p };
+        } else {
+          return {
+            name: p.name,
+            profilePicture: p.profilePicture
+          };
+        }
+      })
       : [];
 
     return { questions, players };

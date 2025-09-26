@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { Player, Team } from '../../types';
 import { usePlayerSetupStyles } from '../../hooks/useStyles';
+import { PlayerTeamSelector, createSelectableItems } from '../shared/PlayerTeamSelector';
 
 export const PlayerSetup: React.FC = () => {
   const { 
@@ -47,6 +48,52 @@ export const PlayerSetup: React.FC = () => {
     );
   };
 
+  const renderPlayerCard = (player: Player) => (
+    <div key={player.name} className={styles.playerCard}>
+      {player.profilePicture ? (
+        <>
+          <img
+            src={player.profilePicture}
+            alt={player.name}
+            className={styles.playerAvatar}
+            onError={(e) => {
+              const img = e.currentTarget;
+              const placeholder = img.nextElementSibling as HTMLElement;
+              img.style.display = 'none';
+              if (placeholder) {
+                placeholder.style.display = 'flex';
+              }
+            }}
+          />
+          <div
+            className={styles.playerAvatarPlaceholder}
+            style={{ display: 'none' }}
+          >
+            {player.name.charAt(0).toUpperCase()}
+          </div>
+        </>
+      ) : (
+        <div className={styles.playerAvatarPlaceholder}>
+          {player.name.charAt(0).toUpperCase()}
+        </div>
+      )}
+
+      <div className={styles.playerInfo}>
+        <div className={styles.playerName}>{player.name}</div>
+      </div>
+
+      <button
+        onClick={() => removePlayer(player.name)}
+        className={styles.removeButton}
+        title="Remove player"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  );
+
   return (
     <div className={styles.container}>
       {/* Add Players Section */}
@@ -71,17 +118,7 @@ export const PlayerSetup: React.FC = () => {
         </div>
 
         <div className={styles.playersList}>
-          {players.map(player => (
-            <div key={player.name} className={styles.playerItem}>
-              <span>{player.name}</span>
-              <button
-                onClick={() => removePlayer(player.name)}
-                className={styles.removeButton}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
+          {players.map(renderPlayerCard)}
         </div>
       </div>
 
@@ -100,19 +137,14 @@ export const PlayerSetup: React.FC = () => {
           
           <div className={styles.playerSelection}>
             <p className={styles.selectionLabel}>Select players for team:</p>
-            <div className={styles.checkboxList}>
-              {players.map(player => (
-                <label key={player.name} className={styles.checkboxItem}>
-                  <input
-                    type="checkbox"
-                    checked={selectedPlayers.includes(player.name)}
-                    onChange={() => togglePlayerSelection(player.name)}
-                    className={styles.checkbox}
-                  />
-                  {player.name}
-                </label>
-              ))}
-            </div>
+            <PlayerTeamSelector
+              items={createSelectableItems(players, [], false)}
+              selectedItems={selectedPlayers}
+              onToggleSelection={togglePlayerSelection}
+              selectionMode="multiple"
+              showType={false}
+              className="max-h-48 overflow-y-auto"
+            />
           </div>
           
           <button

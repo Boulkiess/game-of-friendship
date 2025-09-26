@@ -1,5 +1,6 @@
 export interface Player {
   name: string; // Unique identifier
+  profilePicture?: string; // Optional profile picture URL/path
 }
 
 export interface Team {
@@ -27,7 +28,7 @@ export interface TimerState {
   initialTime: number;
 }
 
-export type AnswerMode = 'individual' | 'duel' | 'teams' | 'teams-duel';
+export type AnswerMode = 'individual' | 'duel' | 'teams' | 'teams-duel' | 'champions';
 
 export interface GameContext {
   players: Player[];
@@ -42,6 +43,8 @@ export interface GameContext {
   selectedAnswerer?: string; // Player or team name
   selectedOpponent1?: string; // First opponent in duel modes
   selectedOpponent2?: string; // Second opponent in duel modes
+  selectedChampions?: Map<string, string[]>; // Team name -> selected champions
+  showScoreboard: boolean; // Whether to show scoreboard to players
 }
 
 export interface QuestionFilters {

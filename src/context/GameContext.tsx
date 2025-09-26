@@ -24,6 +24,9 @@ interface GameContextType extends GameContext {
   clearPlayerView: () => void;
   setSelectedOpponents: (opponent1: string, opponent2: string) => void;
   clearSelectedOpponents: () => void;
+  setSelectedChampions: (teamName: string, champions: string[]) => void;
+  clearSelectedChampions: () => void;
+  setShowScoreboard: (show: boolean) => void;
 }
 
 type GameAction =
@@ -41,7 +44,10 @@ type GameAction =
   | { type: 'SET_SELECTED_ANSWERER'; payload: string }
   | { type: 'SET_DISPLAYED_QUESTION'; payload: Question | null }
   | { type: 'SET_SELECTED_OPPONENTS'; payload: { opponent1: string; opponent2: string } }
-  | { type: 'CLEAR_SELECTED_OPPONENTS' };
+  | { type: 'CLEAR_SELECTED_OPPONENTS' }
+  | { type: 'SET_SELECTED_CHAMPIONS'; payload: { teamName: string; champions: string[] } }
+  | { type: 'CLEAR_SELECTED_CHAMPIONS' }
+  | { type: 'SET_SHOW_SCOREBOARD'; payload: boolean };
 
 const initialState: GameContext = {
   players: [],
@@ -58,7 +64,9 @@ const initialState: GameContext = {
   answerMode: 'individual',
   displayedQuestion: null,
   selectedOpponent1: undefined,
-  selectedOpponent2: undefined
+  selectedOpponent2: undefined,
+  selectedChampions: undefined,
+  showScoreboard: false
 };
 
 function gameReducer(state: GameContext, action: GameAction): GameContext {
@@ -116,6 +124,14 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
         selectedOpponent1: undefined,
         selectedOpponent2: undefined
       };
+    case 'SET_SELECTED_CHAMPIONS':
+      const newChampions = new Map(state.selectedChampions);
+      newChampions.set(action.payload.teamName, action.payload.champions);
+      return { ...state, selectedChampions: newChampions };
+    case 'CLEAR_SELECTED_CHAMPIONS':
+      return { ...state, selectedChampions: undefined };
+    case 'SET_SHOW_SCOREBOARD':
+      return { ...state, showScoreboard: action.payload };
     default:
       return state;
   }
@@ -251,6 +267,14 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'CLEAR_SELECTED_OPPONENTS' });
   };
 
+  const setSelectedChampions = (teamName: string, champions: string[]) => {
+    dispatch({ type: 'SET_SELECTED_CHAMPIONS', payload: { teamName, champions } });
+  };
+
+  const clearSelectedChampions = () => {
+    dispatch({ type: 'CLEAR_SELECTED_CHAMPIONS' });
+  };
+
   const openPlayerView = () => {
     if (playerWindowRef.current && !playerWindowRef.current.closed) {
       playerWindowRef.current.focus();
@@ -289,6 +313,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'SET_DISPLAYED_QUESTION', payload: null });
   };
 
+  const setShowScoreboard = (show: boolean) => {
+    dispatch({ type: 'SET_SHOW_SCOREBOARD', payload: show });
+  };
+
   const value: GameContextType = {
     ...state,
     addPlayer,
@@ -311,7 +339,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     sendQuestionToPlayers,
     clearPlayerView,
     setSelectedOpponents,
-    clearSelectedOpponents
+    clearSelectedOpponents,
+    setSelectedChampions,
+    clearSelectedChampions,
+    setShowScoreboard
   };
 
   return (

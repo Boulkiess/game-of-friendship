@@ -1,11 +1,11 @@
 import React from 'react';
 import { useGame } from '../../context/GameContext';
-import { Scoreboard } from '../shared/Scoreboard';
 import { QuestionDisplay } from './QuestionDisplay';
+import { ScoreboardModal } from '../shared/ScoreboardModal';
 import { usePlayerViewStyles } from '../../hooks/useStyles';
 
 export const PlayerView: React.FC = () => {
-  const { gameState } = useGame();
+  const { gameState, showScoreboard, setShowScoreboard } = useGame();
   const styles = usePlayerViewStyles();
 
   return (
@@ -20,15 +20,14 @@ export const PlayerView: React.FC = () => {
           </p>
         </header>
 
-        <div className={styles.grid}>
-          <div className={styles.questionSection}>
-            <QuestionDisplay />
-          </div>
-          
-          <div className={styles.scoreboardSection}>
-            <Scoreboard />
-          </div>
+        <div className="w-full">
+          <QuestionDisplay />
         </div>
+
+        <ScoreboardModal
+          isOpen={showScoreboard}
+          onClose={() => setShowScoreboard(false)}
+        />
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { TimerControl } from './TimerControl';
 import { ScoreControl } from './ScoreControl';
 import { Scoreboard } from '../shared/Scoreboard';
 import { useGameMasterViewStyles } from '../../hooks/useStyles';
+import { ScoreboardControl } from './ScoreboardControl';
 
 export const GameMasterView: React.FC = () => {
   const { gameState, setGameState } = useGame();
@@ -52,7 +53,7 @@ export const GameMasterView: React.FC = () => {
             
             <div className={styles.ongoingRight}>
               <TimerControl />
-              <Scoreboard />
+              <ScoreboardControl />
             </div>
           </div>
         )}

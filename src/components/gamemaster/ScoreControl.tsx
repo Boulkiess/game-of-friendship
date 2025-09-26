@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { useScoreControlStyles } from '../../hooks/useStyles';
+import { PlayerTeamSelector, createSelectableItems } from '../shared/PlayerTeamSelector';
 
 export const ScoreControl: React.FC = () => {
   const { 
@@ -15,17 +16,22 @@ export const ScoreControl: React.FC = () => {
     selectedOpponent1,
     selectedOpponent2,
     setSelectedOpponents,
-    clearSelectedOpponents
+    clearSelectedOpponents,
+    selectedChampions,
+    setSelectedChampions,
+    clearSelectedChampions
   } = useGame();
   const styles = useScoreControlStyles();
   
   const [customPoints, setCustomPoints] = useState(1);
   const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [championsPerTeam, setChampionsPerTeam] = useState(1);
 
-  const handleAnswerModeChange = (mode: 'individual' | 'duel' | 'teams' | 'teams-duel') => {
+  const handleAnswerModeChange = (mode: 'individual' | 'duel' | 'teams' | 'teams-duel' | 'champions') => {
     setAnswerMode(mode);
     setSelectedAnswerer('');
     clearSelectedOpponents();
+    clearSelectedChampions();
   };
 
   const handleSelectAnswerer = (name: string) => {
@@ -40,6 +46,21 @@ export const ScoreControl: React.FC = () => {
     }
   };
 
+  const handleChampionToggle = (teamName: string, playerName: string) => {
+    const currentTeamChampions = selectedChampions?.get(teamName) || [];
+    let newChampions: string[];
+
+    if (currentTeamChampions.includes(playerName)) {
+      newChampions = currentTeamChampions.filter(name => name !== playerName);
+    } else if (currentTeamChampions.length < championsPerTeam) {
+      newChampions = [...currentTeamChampions, playerName];
+    } else {
+      return; // Can't select more champions
+    }
+
+    setSelectedChampions(teamName, newChampions);
+  };
+
   const awardPoints = (playerOrTeamName: string, points: number) => {
     updateScore(playerOrTeamName, points);
   };
@@ -47,17 +68,21 @@ export const ScoreControl: React.FC = () => {
   const getAvailableAnswerers = () => {
     switch (answerMode) {
       case 'individual':
-        return players
-          .filter(p => !currentQuestion?.targets?.includes(p.name))
-          .map(p => ({ name: p.name, type: 'player' }));
+        return createSelectableItems(
+          players.filter(p => !currentQuestion?.targets?.includes(p.name)),
+          [],
+          false
+        );
       case 'teams':
-        return teams.map(t => ({ name: t.name, type: 'team' }));
+        return createSelectableItems([], teams, true).filter(item => item.type === 'team');
       case 'duel':
-        return players
-          .filter(p => !currentQuestion?.targets?.includes(p.name))
-          .map(p => ({ name: p.name, type: 'player' }));
+        return createSelectableItems(
+          players.filter(p => !currentQuestion?.targets?.includes(p.name)),
+          [],
+          false
+        );
       case 'teams-duel':
-        return teams.map(t => ({ name: t.name, type: 'team' }));
+        return createSelectableItems([], teams, true).filter(item => item.type === 'team');
       default:
         return [];
     }
@@ -86,42 +111,24 @@ export const ScoreControl: React.FC = () => {
         <div className={styles.duelContainer}>
           <div className={styles.duelColumn}>
             <div className={styles.duelColumnTitle}>Opponent 1</div>
-            <div className={styles.duelOpponentList}>
-              {availableOptions.map(({ name, type }) => (
-                <label key={`opp1-${name}`} className={styles.getDuelOpponentLabel(selectedOpponent1 === name)}>
-                  <input
-                    type="radio"
-                    name="opponent1"
-                    value={name}
-                    checked={selectedOpponent1 === name}
-                    onChange={() => handleSelectOpponent(1, name)}
-                    className={styles.duelRadioInput}
-                  />
-                  {name} ({type})
-                </label>
-              ))}
-            </div>
+            <PlayerTeamSelector
+              items={availableOptions}
+              selectedItems={selectedOpponent1 ? [selectedOpponent1] : []}
+              onToggleSelection={(name) => handleSelectOpponent(1, name)}
+              selectionMode="single"
+              disabled={selectedOpponent2 ? [selectedOpponent2] : []}
+            />
           </div>
 
           <div className={styles.duelColumn}>
             <div className={styles.duelColumnTitle}>Opponent 2</div>
-            <div className={styles.duelOpponentList}>
-              {availableOptions
-                .filter(({ name }) => name !== selectedOpponent1)
-                .map(({ name, type }) => (
-                  <label key={`opp2-${name}`} className={styles.getDuelOpponentLabel(selectedOpponent2 === name)}>
-                    <input
-                      type="radio"
-                      name="opponent2"
-                      value={name}
-                      checked={selectedOpponent2 === name}
-                      onChange={() => handleSelectOpponent(2, name)}
-                      className={styles.duelRadioInput}
-                    />
-                    {name} ({type})
-                  </label>
-                ))}
-            </div>
+            <PlayerTeamSelector
+              items={availableOptions}
+              selectedItems={selectedOpponent2 ? [selectedOpponent2] : []}
+              onToggleSelection={(name) => handleSelectOpponent(2, name)}
+              selectionMode="single"
+              disabled={selectedOpponent1 ? [selectedOpponent1] : []}
+            />
           </div>
         </div>
       </div>
@@ -135,20 +142,56 @@ export const ScoreControl: React.FC = () => {
     return (
       <div>
         <h4 className={styles.sectionTitle}>Who's Answering:</h4>
-        <div className={styles.answererList}>
-          {getAvailableAnswerers().map(({ name, type }) => (
-            <label key={name} className={styles.answererLabel}>
-              <input
-                type="radio"
-                name="answerer"
-                value={name}
-                checked={selectedAnswerer === name}
-                onChange={() => handleSelectAnswerer(name)}
-                className={styles.radioInput}
-              />
-              {name} ({type})
-            </label>
-          ))}
+        <PlayerTeamSelector
+          items={getAvailableAnswerers()}
+          selectedItems={selectedAnswerer ? [selectedAnswerer] : []}
+          onToggleSelection={handleSelectAnswerer}
+          selectionMode="single"
+        />
+      </div>
+    );
+  };
+
+  const renderChampionsSelection = () => {
+    if (answerMode !== 'champions') return null;
+
+    return (
+      <div>
+        <h4 className={styles.sectionTitle}>Select Champions:</h4>
+
+        <div className="mb-4">
+          <label className="flex items-center space-x-2">
+            <span className="text-sm">Champions per team:</span>
+            <input
+              type="number"
+              value={championsPerTeam}
+              onChange={(e) => setChampionsPerTeam(Math.max(1, parseInt(e.target.value) || 1))}
+              className="w-16 px-2 py-1 border rounded"
+              min="1"
+              max="10"
+            />
+          </label>
+        </div>
+
+        <div className="space-y-4">
+          {teams.map(team => {
+            const teamChampions = selectedChampions?.get(team.name) || [];
+
+            return (
+              <div key={team.id} className="border rounded-lg p-4">
+                <h5 className="font-semibold mb-2 text-blue-700">{team.name}</h5>
+                <PlayerTeamSelector
+                  items={createSelectableItems(team.players, [], false)}
+                  selectedItems={teamChampions}
+                  onToggleSelection={(playerName) => handleChampionToggle(team.name, playerName)}
+                  selectionMode="champions"
+                  showType={false}
+                  championsPerTeam={championsPerTeam}
+                  teamName={team.name}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -258,6 +301,81 @@ export const ScoreControl: React.FC = () => {
     );
   };
 
+  const renderChampionsScoreButtons = () => {
+    if (answerMode !== 'champions') return null;
+
+    const allTeamsHaveChampions = teams.every(team => {
+      const teamChampions = selectedChampions?.get(team.name) || [];
+      return teamChampions.length === championsPerTeam;
+    });
+
+    if (!allTeamsHaveChampions) {
+      return (
+        <div className="text-center text-gray-500 py-4">
+          Select {championsPerTeam} champion{championsPerTeam !== 1 ? 's' : ''} from each team to award points
+        </div>
+      );
+    }
+
+    return (
+      <div>
+        <h4 className={styles.sectionTitle}>Award Points to Team:</h4>
+
+        <div className={styles.pointsContainer}>
+          <input
+            type="number"
+            value={customPoints}
+            onChange={(e) => setCustomPoints(parseInt(e.target.value) || 0)}
+            className={styles.pointsInput}
+            min="0"
+          />
+          <span>points</span>
+        </div>
+
+        <div className={styles.actionButtons}>
+          <div className="grid grid-cols-1 gap-2">
+            {teams.map(team => (
+              <div key={team.id} className="flex space-x-2">
+                <button
+                  onClick={() => currentQuestion && awardPoints(team.name, currentQuestion.difficulty)}
+                  className={styles.correctButton}
+                >
+                  {team.name} Correct (+{currentQuestion?.difficulty})
+                </button>
+                <button
+                  onClick={() => awardPoints(team.name, -1)}
+                  className={styles.wrongButton}
+                >
+                  {team.name} Wrong (-1)
+                </button>
+                <button
+                  onClick={() => awardPoints(team.name, customPoints)}
+                  className={styles.customButton}
+                >
+                  {team.name} Custom (+{customPoints})
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-4 bg-gray-50 p-3 rounded">
+          <h5 className="font-semibold mb-2">Selected Champions:</h5>
+          <div className="space-y-1 text-sm">
+            {teams.map(team => {
+              const teamChampions = selectedChampions?.get(team.name) || [];
+              return (
+                <div key={team.id}>
+                  <span className="font-medium text-blue-700">{team.name}:</span> {teamChampions.join(', ')}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (!currentQuestion) {
     return (
       <div className={styles.noQuestionContainer}>
@@ -284,7 +402,7 @@ export const ScoreControl: React.FC = () => {
       <div>
         <h4 className={styles.sectionTitle}>Answer Mode:</h4>
         <div className={styles.answerModeButtons}>
-          {(['individual', 'duel', 'teams', 'teams-duel'] as const).map(mode => (
+          {(['individual', 'duel', 'teams', 'teams-duel', 'champions'] as const).map(mode => (
             <button
               key={mode}
               onClick={() => handleAnswerModeChange(mode)}
@@ -296,12 +414,13 @@ export const ScoreControl: React.FC = () => {
         </div>
       </div>
 
-      {/* Answerer/Opponent Selection */}
+      {/* Answerer/Opponent/Champion Selection */}
       {renderRegularAnswererSelection()}
       {renderDuelSelection()}
+      {renderChampionsSelection()}
 
       {/* Score Award Section */}
-      {renderScoreButtons()}
+      {answerMode === 'champions' ? renderChampionsScoreButtons() : renderScoreButtons()}
 
       {/* Manual Score Adjustment */}
       <div>

@@ -1,8 +1,13 @@
 players:
-  - "Alice"
-  - "Bob"
-  - "Charlie"
-  - "Diana"
+  - name: "Alice"
+    profilePicture: "/images/players/alice.jpg"
+  - name: "Bob"
+    profilePicture: "/images/players/bob.jpg"
+  - name: "Charlie"
+    profilePicture: "/images/players/charlie.jpg"
+  - name: "Diana"
+    profilePicture: "/images/players/diana.jpg"
+  - "Eve"  # Player without profile picture (backward compatibility)
 
 questions:
   - title: "Capital City Knowledge"
