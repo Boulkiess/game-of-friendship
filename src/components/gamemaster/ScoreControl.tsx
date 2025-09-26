@@ -26,7 +26,6 @@ export const ScoreControl: React.FC = () => {
   
   const [customPoints, setCustomPoints] = useState(1);
   const [selectedPlayer, setSelectedPlayer] = useState('');
-  const [championsPerTeam, setChampionsPerTeam] = useState(1);
 
   const handleAnswerModeChange = (mode: 'individual' | 'duel' | 'teams' | 'teams-duel' | 'champions') => {
     setAnswerMode(mode);
@@ -53,10 +52,8 @@ export const ScoreControl: React.FC = () => {
 
     if (currentTeamChampions.includes(playerName)) {
       newChampions = currentTeamChampions.filter(name => name !== playerName);
-    } else if (currentTeamChampions.length < championsPerTeam) {
-      newChampions = [...currentTeamChampions, playerName];
     } else {
-      return; // Can't select more champions
+      newChampions = [...currentTeamChampions, playerName];
     }
 
     setSelectedChampions(teamName, newChampions);
@@ -237,22 +234,48 @@ export const ScoreControl: React.FC = () => {
   const renderChampionsSelection = () => {
     if (answerMode !== 'champions') return null;
 
+    const teamChampionCounts = teams.map(team => {
+      const teamChampions = selectedChampions?.get(team.name) || [];
+      return {
+        teamName: team.name,
+        count: teamChampions.length,
+        champions: teamChampions
+      };
+    });
+
+    const allCounts = teamChampionCounts.map(t => t.count);
+    const minCount = Math.min(...allCounts);
+    const maxCount = Math.max(...allCounts);
+    const hasEqualChampions = minCount === maxCount && minCount > 0;
+    const currentChampionCount = hasEqualChampions ? minCount : 0;
+
     return (
       <div>
         <h4 className={styles.sectionTitle}>Select Champions:</h4>
 
-        <div className="mb-4">
-          <label className="flex items-center space-x-2">
-            <span className="text-sm">Champions per team:</span>
-            <input
-              type="number"
-              value={championsPerTeam}
-              onChange={(e) => setChampionsPerTeam(Math.max(1, parseInt(e.target.value) || 1))}
-              className="w-16 px-2 py-1 border rounded"
-              min="1"
-              max="10"
-            />
-          </label>
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+          <div className="text-sm text-gray-700">
+            <p className="font-medium mb-1">Championship Status:</p>
+            {hasEqualChampions ? (
+              <p className="text-green-700">
+                ✅ Ready! Each team has {currentChampionCount} champion{currentChampionCount !== 1 ? 's' : ''}
+              </p>
+            ) : (
+              <div>
+                <p className="text-orange-700 mb-1">
+                  ⚠️ Teams need equal numbers of champions
+                </p>
+                <div className="text-xs space-y-1">
+                  {teamChampionCounts.map(({ teamName, count }) => (
+                    <div key={teamName} className="flex justify-between">
+                      <span>{teamName}:</span>
+                      <span className="font-medium">{count} champion{count !== 1 ? 's' : ''}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -268,29 +291,24 @@ export const ScoreControl: React.FC = () => {
                     avatarSize="small"
                   />
                   <span className="text-sm text-gray-600">
-                    ({teamChampions.length}/{championsPerTeam} selected)
+                    ({teamChampions.length} champion{teamChampions.length !== 1 ? 's' : ''} selected)
                   </span>
                 </div>
 
                 <div className="space-y-2">
                   {team.players.map(player => {
                     const isSelected = teamChampions.includes(player.name);
-                    const canSelect = !isSelected && teamChampions.length < championsPerTeam;
-                    const isDisabled = !isSelected && !canSelect;
 
                     return (
                       <label
                         key={player.name}
-                        className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' :
-                            isDisabled ? 'opacity-50 cursor-not-allowed' :
-                              'hover:bg-gray-50'
+                        className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-50'
                           }`}
                       >
                         <input
                           type="checkbox"
                           checked={isSelected}
-                          onChange={() => !isDisabled && handleChampionToggle(team.name, player.name)}
-                          disabled={isDisabled}
+                          onChange={() => handleChampionToggle(team.name, player.name)}
                           className="mr-3"
                         />
                         <EntityDisplay
@@ -417,18 +435,29 @@ export const ScoreControl: React.FC = () => {
   const renderChampionsScoreButtons = () => {
     if (answerMode !== 'champions') return null;
 
-    const allTeamsHaveChampions = teams.every(team => {
+    const teamChampionCounts = teams.map(team => {
       const teamChampions = selectedChampions?.get(team.name) || [];
-      return teamChampions.length === championsPerTeam;
+      return {
+        teamName: team.name,
+        count: teamChampions.length,
+        champions: teamChampions
+      };
     });
 
-    if (!allTeamsHaveChampions) {
+    const allCounts = teamChampionCounts.map(t => t.count);
+    const minCount = Math.min(...allCounts);
+    const maxCount = Math.max(...allCounts);
+    const hasEqualChampions = minCount === maxCount && minCount > 0;
+
+    if (!hasEqualChampions) {
       return (
         <div className="text-center text-gray-500 py-4">
-          Select {championsPerTeam} champion{championsPerTeam !== 1 ? 's' : ''} from each team to award points
+          Select the same number of champions from each team to proceed
         </div>
       );
     }
+
+    const championCount = minCount;
 
     return (
       <div>
@@ -473,7 +502,7 @@ export const ScoreControl: React.FC = () => {
         </div>
 
         <div className="mt-4 bg-gray-50 p-3 rounded">
-          <h5 className="font-semibold mb-2">Selected Champions:</h5>
+          <h5 className="font-semibold mb-2">Selected Champions ({championCount} per team):</h5>
           <div className="space-y-1 text-sm">
             {teams.map(team => {
               const teamChampions = selectedChampions?.get(team.name) || [];
