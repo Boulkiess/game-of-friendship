@@ -212,6 +212,12 @@ export const PlayerView: React.FC = () => {
     const leftPlayers = involvedPlayers.filter(p => p.teamSide === 'left');
     const rightPlayers = involvedPlayers.filter(p => p.teamSide === 'right');
 
+    const getPlayerTeamColor = (player: any, teamName?: string) => {
+      if (!teamName) return '#6b7280'; // Default gray
+      const team = gameState?.teams.find(t => t.name === teamName);
+      return team?.color || '#6b7280';
+    };
+
     return (
       <div className={styles.floatingPlayersContainer}>
         <div className={styles.floatingPlayersWrapper}>
@@ -219,7 +225,13 @@ export const PlayerView: React.FC = () => {
           <div className={styles.floatingPlayerGroup}>
             {leftPlayers.map(({ player, role, teamName }, index) => (
               <div key={`left-${player.name}-${index}`} className="flex flex-col items-center">
-                <div className={styles.floatingPlayerIcon}>
+                <div
+                  className={styles.floatingPlayerIcon}
+                  style={{
+                    borderColor: getPlayerTeamColor(player, teamName),
+                    borderWidth: teamName ? '4px' : '3px'
+                  }}
+                >
                   <PlayerAvatar player={player} size="large" />
                 </div>
                 <div className={styles.floatingPlayerLabel} title={`${player.name} - ${role}`}>
@@ -233,7 +245,13 @@ export const PlayerView: React.FC = () => {
           <div className={styles.floatingPlayerGroup}>
             {rightPlayers.map(({ player, role, teamName }, index) => (
               <div key={`right-${player.name}-${index}`} className="flex flex-col items-center">
-                <div className={styles.floatingPlayerIcon}>
+                <div
+                  className={styles.floatingPlayerIcon}
+                  style={{
+                    borderColor: getPlayerTeamColor(player, teamName),
+                    borderWidth: teamName ? '4px' : '3px'
+                  }}
+                >
                   <PlayerAvatar player={player} size="large" />
                 </div>
                 <div className={styles.floatingPlayerLabel} title={`${player.name} - ${role}`}>

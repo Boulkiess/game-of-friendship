@@ -27,6 +27,7 @@ interface GameContextType extends GameContext {
   setSelectedChampions: (teamName: string, champions: string[]) => void;
   clearSelectedChampions: () => void;
   setScoreboardMode: (mode: ScoreboardMode) => void;
+  updateTeamColor: (teamId: string, color: string) => void;
 }
 
 type GameAction =
@@ -47,7 +48,8 @@ type GameAction =
   | { type: 'CLEAR_SELECTED_OPPONENTS' }
   | { type: 'SET_SELECTED_CHAMPIONS'; payload: { teamName: string; champions: string[] } }
   | { type: 'CLEAR_SELECTED_CHAMPIONS' }
-  | { type: 'SET_SCOREBOARD_MODE'; payload: ScoreboardMode };
+  | { type: 'SET_SCOREBOARD_MODE'; payload: ScoreboardMode }
+  | { type: 'UPDATE_TEAM_COLOR'; payload: { teamId: string; color: string } };
 
 const initialState: GameContext = {
   players: [],
@@ -132,6 +134,15 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
       return { ...state, selectedChampions: undefined };
     case 'SET_SCOREBOARD_MODE':
       return { ...state, scoreboardMode: action.payload };
+    case 'UPDATE_TEAM_COLOR':
+      return {
+        ...state,
+        teams: state.teams.map(team =>
+          team.id === action.payload.teamId
+            ? { ...team, color: action.payload.color }
+            : team
+        )
+      };
     default:
       return state;
   }
@@ -317,6 +328,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'SET_SCOREBOARD_MODE', payload: mode });
   };
 
+  const updateTeamColor = (teamId: string, color: string) => {
+    dispatch({ type: 'UPDATE_TEAM_COLOR', payload: { teamId, color } });
+  };
+
   const value: GameContextType = {
     ...state,
     addPlayer,
@@ -342,7 +357,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     clearSelectedOpponents,
     setSelectedChampions,
     clearSelectedChampions,
-    setScoreboardMode
+    setScoreboardMode,
+    updateTeamColor
   };
 
   return (

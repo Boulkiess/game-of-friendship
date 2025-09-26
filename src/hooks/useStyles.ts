@@ -112,7 +112,11 @@ export const usePlayerSetupStyles = () => {
         teamItem: "p-3 bg-gray-50 rounded",
         teamHeader: "flex justify-between items-center mb-2",
         teamName: "font-semibold",
-        teamPlayers: "text-sm text-gray-600"
+        teamPlayers: "text-sm text-gray-600",
+        colorPalette: "grid grid-cols-6 gap-2 mb-4",
+        colorOption: "w-8 h-8 rounded-full border-2 cursor-pointer hover:scale-110 transition-transform",
+        selectedColorOption: "w-8 h-8 rounded-full border-4 border-gray-800 cursor-pointer hover:scale-110 transition-transform",
+        teamColorIndicator: "w-4 h-4 rounded-full border-2 border-white shadow-sm flex-shrink-0"
     }), []);
 };
 
@@ -281,3 +285,19 @@ export const useMessageBasedPlayerViewStyles = () => {
         waitingText: "text-2xl text-blue-600 font-medium"
     }), []);
 };
+
+// Color palette for teams
+export const TEAM_COLORS = [
+    { name: 'Red', value: 'rgb(239, 68, 68)', bg: 'bg-red-500', border: 'border-red-500' },
+    { name: 'Blue', value: 'rgb(59, 130, 246)', bg: 'bg-blue-500', border: 'border-blue-500' },
+    { name: 'Green', value: 'rgb(34, 197, 94)', bg: 'bg-green-500', border: 'border-green-500' },
+    { name: 'Yellow', value: 'rgb(234, 179, 8)', bg: 'bg-yellow-500', border: 'border-yellow-500' },
+    { name: 'Purple', value: 'rgb(147, 51, 234)', bg: 'bg-purple-500', border: 'border-purple-500' },
+    { name: 'Pink', value: 'rgb(236, 72, 153)', bg: 'bg-pink-500', border: 'border-pink-500' },
+    { name: 'Indigo', value: 'rgb(99, 102, 241)', bg: 'bg-indigo-500', border: 'border-indigo-500' },
+    { name: 'Orange', value: 'rgb(249, 115, 22)', bg: 'bg-orange-500', border: 'border-orange-500' },
+    { name: 'Teal', value: 'rgb(20, 184, 166)', bg: 'bg-teal-500', border: 'border-teal-500' },
+    { name: 'Cyan', value: 'rgb(6, 182, 212)', bg: 'bg-cyan-500', border: 'border-cyan-500' },
+    { name: 'Emerald', value: 'rgb(16, 185, 129)', bg: 'bg-emerald-500', border: 'border-emerald-500' },
+    { name: 'Rose', value: 'rgb(244, 63, 94)', bg: 'bg-rose-500', border: 'border-rose-500' }
+];

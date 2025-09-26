@@ -7,6 +7,7 @@ export interface Team {
   id: string;
   name: string;
   players: Player[];
+  color: string; // Team color from predefined palette
 }
 
 export interface Question {

@@ -81,7 +81,8 @@ export const TeamAvatar: React.FC<TeamAvatarProps> = ({
                             <img
                                 src={player.profilePicture}
                                 alt={player.name}
-                                className={`${sizeClasses} rounded-full object-cover border-2 border-white shadow-sm`}
+                                className={`${sizeClasses} rounded-full object-cover border-2 shadow-sm`}
+                                style={{ borderColor: team.color }}
                                 onError={(e) => {
                                     const img = e.currentTarget;
                                     const placeholder = img.nextElementSibling as HTMLElement;
@@ -92,8 +93,8 @@ export const TeamAvatar: React.FC<TeamAvatarProps> = ({
                                 }}
                             />
                             <div
-                                className={`absolute top-0 left-0 ${sizeClasses} rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold border-2 border-white shadow-sm`}
-                                style={{ display: 'none' }}
+                                className={`absolute top-0 left-0 ${sizeClasses} rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold border-2 shadow-sm`}
+                                style={{ display: 'none', borderColor: team.color }}
                             >
                                 {player.name.charAt(0).toUpperCase()}
                             </div>
@@ -104,8 +105,8 @@ export const TeamAvatar: React.FC<TeamAvatarProps> = ({
                 return (
                     <div
                         key={player.name}
-                        className={`absolute ${sizeClasses} rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold border-2 border-white shadow-sm`}
-                        style={{ left: `${leftOffset}px`, zIndex }}
+                        className={`absolute ${sizeClasses} rounded-full bg-gray-300 flex items-center justify-center text-gray-600 font-semibold border-2 shadow-sm`}
+                        style={{ left: `${leftOffset}px`, zIndex, borderColor: team.color }}
                     >
                         {player.name.charAt(0).toUpperCase()}
                     </div>
@@ -113,8 +114,8 @@ export const TeamAvatar: React.FC<TeamAvatarProps> = ({
             })}
             {team.players.length > maxVisible && (
                 <div
-                    className={`absolute ${sizeClasses} rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-semibold border-2 border-white shadow-sm`}
-                    style={{ left: `${maxVisible * offset}px`, zIndex: 0 }}
+                    className={`absolute ${sizeClasses} rounded-full bg-blue-200 flex items-center justify-center text-blue-800 font-semibold border-2 shadow-sm`}
+                    style={{ left: `${maxVisible * offset}px`, zIndex: 0, borderColor: team.color }}
                 >
                     +{team.players.length - maxVisible}
                 </div>
