@@ -3,6 +3,8 @@ import { useGame } from '../../context/GameContext';
 import { Player, Team } from '../../types';
 import { usePlayerSetupStyles } from '../../hooks/useStyles';
 import { PlayerTeamSelector, createSelectableItems } from '../shared/PlayerTeamSelector';
+import { EntityDisplay, createEntityInfo } from '../shared/EntityDisplay';
+import { PlayerAvatar } from '../shared/PlayerAvatar';
 
 export const PlayerSetup: React.FC = () => {
   const { 
@@ -50,33 +52,7 @@ export const PlayerSetup: React.FC = () => {
 
   const renderPlayerCard = (player: Player) => (
     <div key={player.name} className={styles.playerCard}>
-      {player.profilePicture ? (
-        <>
-          <img
-            src={player.profilePicture}
-            alt={player.name}
-            className={styles.playerAvatar}
-            onError={(e) => {
-              const img = e.currentTarget;
-              const placeholder = img.nextElementSibling as HTMLElement;
-              img.style.display = 'none';
-              if (placeholder) {
-                placeholder.style.display = 'flex';
-              }
-            }}
-          />
-          <div
-            className={styles.playerAvatarPlaceholder}
-            style={{ display: 'none' }}
-          >
-            {player.name.charAt(0).toUpperCase()}
-          </div>
-        </>
-      ) : (
-        <div className={styles.playerAvatarPlaceholder}>
-          {player.name.charAt(0).toUpperCase()}
-        </div>
-      )}
+      <PlayerAvatar player={player} size="large" />
 
       <div className={styles.playerInfo}>
         <div className={styles.playerName}>{player.name}</div>
@@ -137,14 +113,31 @@ export const PlayerSetup: React.FC = () => {
           
           <div className={styles.playerSelection}>
             <p className={styles.selectionLabel}>Select players for team:</p>
-            <PlayerTeamSelector
-              items={createSelectableItems(players, [], false)}
-              selectedItems={selectedPlayers}
-              onToggleSelection={togglePlayerSelection}
-              selectionMode="multiple"
-              showType={false}
-              className="max-h-48 overflow-y-auto"
-            />
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {players.map(player => {
+                const isSelected = selectedPlayers.includes(player.name);
+
+                return (
+                  <label
+                    key={player.name}
+                    className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-50'
+                      }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => togglePlayerSelection(player.name)}
+                      className="mr-3"
+                    />
+                    <EntityDisplay
+                      entity={createEntityInfo(player.name, players, teams)}
+                      showType={false}
+                      avatarSize="small"
+                    />
+                  </label>
+                );
+              })}
+            </div>
           </div>
           
           <button
@@ -160,7 +153,10 @@ export const PlayerSetup: React.FC = () => {
           {teams.map(team => (
             <div key={team.id} className={styles.teamItem}>
               <div className={styles.teamHeader}>
-                <span className={styles.teamName}>{team.name}</span>
+                <EntityDisplay
+                  entity={createEntityInfo(team.name, players, teams)}
+                  showType={false}
+                />
                 <button
                   onClick={() => removeTeam(team.id)}
                   className={styles.removeButton}
@@ -168,8 +164,16 @@ export const PlayerSetup: React.FC = () => {
                   Remove Team
                 </button>
               </div>
-              <div className={styles.teamPlayers}>
-                Players: {team.players.map(p => p.name).join(', ')}
+              <div className="mt-2 text-sm text-gray-600">
+                <span className="font-medium">Members:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {team.players.map(player => (
+                    <span key={player.name} className="inline-flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded text-xs">
+                      <PlayerAvatar player={player} size="small" />
+                      <span>{player.name}</span>
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           ))}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { useScoreControlStyles } from '../../hooks/useStyles';
 import { PlayerTeamSelector, createSelectableItems } from '../shared/PlayerTeamSelector';
+import { EntityDisplay, createEntityInfo } from '../shared/EntityDisplay';
 
 export const ScoreControl: React.FC = () => {
   const { 
@@ -102,8 +103,30 @@ export const ScoreControl: React.FC = () => {
           <div className={styles.selectedOpponentsInfo}>
             <div className={styles.selectedOpponentsTitle}>Selected Opponents:</div>
             <div className={styles.selectedOpponentsList}>
-              {selectedOpponent1 && <div>Opponent 1: {selectedOpponent1}</div>}
-              {selectedOpponent2 && <div>Opponent 2: {selectedOpponent2}</div>}
+              {selectedOpponent1 && (
+                <div className="mb-2">
+                  <span className="text-sm text-gray-600">Opponent 1:</span>
+                  <div className="mt-1">
+                    <EntityDisplay
+                      entity={createEntityInfo(selectedOpponent1, players, teams)}
+                      showType={false}
+                      avatarSize="small"
+                    />
+                  </div>
+                </div>
+              )}
+              {selectedOpponent2 && (
+                <div>
+                  <span className="text-sm text-gray-600">Opponent 2:</span>
+                  <div className="mt-1">
+                    <EntityDisplay
+                      entity={createEntityInfo(selectedOpponent2, players, teams)}
+                      showType={false}
+                      avatarSize="small"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -111,24 +134,64 @@ export const ScoreControl: React.FC = () => {
         <div className={styles.duelContainer}>
           <div className={styles.duelColumn}>
             <div className={styles.duelColumnTitle}>Opponent 1</div>
-            <PlayerTeamSelector
-              items={availableOptions}
-              selectedItems={selectedOpponent1 ? [selectedOpponent1] : []}
-              onToggleSelection={(name) => handleSelectOpponent(1, name)}
-              selectionMode="single"
-              disabled={selectedOpponent2 ? [selectedOpponent2] : []}
-            />
+            <div className="space-y-2">
+              {availableOptions.map(item => {
+                const isSelected = selectedOpponent1 === item.name;
+                const isDisabled = selectedOpponent2 === item.name;
+                const entity = createEntityInfo(item.name, players, teams);
+
+                return (
+                  <label
+                    key={item.name}
+                    className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' :
+                      isDisabled ? 'opacity-50 cursor-not-allowed' :
+                        'hover:bg-gray-50'
+                      }`}
+                  >
+                    <input
+                      type="radio"
+                      name="opponent1"
+                      checked={isSelected}
+                      onChange={() => !isDisabled && handleSelectOpponent(1, item.name)}
+                      disabled={isDisabled}
+                      className="mr-3"
+                    />
+                    <EntityDisplay entity={entity} showType={false} />
+                  </label>
+                );
+              })}
+            </div>
           </div>
 
           <div className={styles.duelColumn}>
             <div className={styles.duelColumnTitle}>Opponent 2</div>
-            <PlayerTeamSelector
-              items={availableOptions}
-              selectedItems={selectedOpponent2 ? [selectedOpponent2] : []}
-              onToggleSelection={(name) => handleSelectOpponent(2, name)}
-              selectionMode="single"
-              disabled={selectedOpponent1 ? [selectedOpponent1] : []}
-            />
+            <div className="space-y-2">
+              {availableOptions.map(item => {
+                const isSelected = selectedOpponent2 === item.name;
+                const isDisabled = selectedOpponent1 === item.name;
+                const entity = createEntityInfo(item.name, players, teams);
+
+                return (
+                  <label
+                    key={item.name}
+                    className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' :
+                      isDisabled ? 'opacity-50 cursor-not-allowed' :
+                        'hover:bg-gray-50'
+                      }`}
+                  >
+                    <input
+                      type="radio"
+                      name="opponent2"
+                      checked={isSelected}
+                      onChange={() => !isDisabled && handleSelectOpponent(2, item.name)}
+                      disabled={isDisabled}
+                      className="mr-3"
+                    />
+                    <EntityDisplay entity={entity} showType={false} />
+                  </label>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -139,15 +202,34 @@ export const ScoreControl: React.FC = () => {
     const isRegularMode = answerMode === 'individual' || answerMode === 'teams';
     if (!isRegularMode) return null;
 
+    const availableOptions = getAvailableAnswerers();
+
     return (
       <div>
         <h4 className={styles.sectionTitle}>Who's Answering:</h4>
-        <PlayerTeamSelector
-          items={getAvailableAnswerers()}
-          selectedItems={selectedAnswerer ? [selectedAnswerer] : []}
-          onToggleSelection={handleSelectAnswerer}
-          selectionMode="single"
-        />
+        <div className="space-y-2">
+          {availableOptions.map(item => {
+            const isSelected = selectedAnswerer === item.name;
+            const entity = createEntityInfo(item.name, players, teams);
+
+            return (
+              <label
+                key={item.name}
+                className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-50'
+                  }`}
+              >
+                <input
+                  type="radio"
+                  name="answerer"
+                  checked={isSelected}
+                  onChange={() => handleSelectAnswerer(item.name)}
+                  className="mr-3"
+                />
+                <EntityDisplay entity={entity} showType={false} />
+              </label>
+            );
+          })}
+        </div>
       </div>
     );
   };
@@ -179,16 +261,47 @@ export const ScoreControl: React.FC = () => {
 
             return (
               <div key={team.id} className="border rounded-lg p-4">
-                <h5 className="font-semibold mb-2 text-blue-700">{team.name}</h5>
-                <PlayerTeamSelector
-                  items={createSelectableItems(team.players, [], false)}
-                  selectedItems={teamChampions}
-                  onToggleSelection={(playerName) => handleChampionToggle(team.name, playerName)}
-                  selectionMode="champions"
-                  showType={false}
-                  championsPerTeam={championsPerTeam}
-                  teamName={team.name}
-                />
+                <div className="flex items-center space-x-3 mb-3">
+                  <EntityDisplay
+                    entity={createEntityInfo(team.name, players, teams)}
+                    showType={false}
+                    avatarSize="small"
+                  />
+                  <span className="text-sm text-gray-600">
+                    ({teamChampions.length}/{championsPerTeam} selected)
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {team.players.map(player => {
+                    const isSelected = teamChampions.includes(player.name);
+                    const canSelect = !isSelected && teamChampions.length < championsPerTeam;
+                    const isDisabled = !isSelected && !canSelect;
+
+                    return (
+                      <label
+                        key={player.name}
+                        className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' :
+                            isDisabled ? 'opacity-50 cursor-not-allowed' :
+                              'hover:bg-gray-50'
+                          }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => !isDisabled && handleChampionToggle(team.name, player.name)}
+                          disabled={isDisabled}
+                          className="mr-3"
+                        />
+                        <EntityDisplay
+                          entity={createEntityInfo(player.name, players, teams)}
+                          showType={false}
+                          avatarSize="small"
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
