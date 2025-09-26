@@ -1,0 +1,58 @@
+questions:
+  - title: "Capital City Knowledge"
+    content: "What is the capital city of Australia?"
+    answer: "Canberra"
+    difficulty: 2
+    tags: ["geography", "capitals"]
+    timer: 30
+
+  - title: "Math Challenge"
+    content: "What is 15 × 24?"
+    answer: "360"
+    difficulty: 1
+    tags: ["math", "multiplication"]
+    timer: 45
+
+  - title: "Science Trivia"
+    content: "What is the chemical symbol for gold?"
+    answer: "Au"
+    difficulty: 2
+    tags: ["science", "chemistry"]
+    targets: ["John"]
+    timer: 20
+
+  - title: "History Question"
+    content: "In which year did World War II end?"
+    answer: "1945"
+    difficulty: 2
+    tags: ["history", "world-war"]
+    timer: 30
+
+  - title: "Literature Classic"
+    content: "Who wrote the novel 'Pride and Prejudice'?"
+    answer: "Jane Austen"
+    difficulty: 3
+    tags: ["literature", "classics"]
+    timer: 25
+
+  - title: "Movie Trivia"
+    content: "Which movie won the Academy Award for Best Picture in 2020?"
+    answer: "Parasite"
+    difficulty: 3
+    tags: ["movies", "awards"]
+    timer: 40
+    photo: "https://example.com/parasite-poster.jpg"
+
+  - title: "Sports Knowledge"
+    content: "How many players are on a basketball team on the court at one time?"
+    answer: "5"
+    difficulty: 1
+    tags: ["sports", "basketball"]
+    timer: 15
+
+  - title: "Technology Question"
+    content: "What does 'HTTP' stand for?"
+    answer: "HyperText Transfer Protocol"
+    difficulty: 2
+    tags: ["technology", "internet"]
+    timer: 35

@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { GameContext, Player, Team, Question, GameState, TimerState, AnswerMode } from '../types';
+import { loadQuestionsFromYAML } from '../utils/yamlLoader';
 
 interface GameContextType extends GameContext {
   addPlayer: (player: Player) => void;
@@ -92,6 +93,32 @@ const GameContextProvider = createContext<GameContextType | undefined>(undefined
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
+
+  // Load questions from questions.yaml file on initialization
+  useEffect(() => {
+    const loadQuestionsFromFile = async () => {
+      try {
+        console.log('Attempting to load questions from /questions.yaml');
+        const response = await fetch('/questions.yaml');
+
+        if (response.ok) {
+          const yamlContent = await response.text();
+          console.log('YAML content loaded:', yamlContent.substring(0, 100) + '...');
+
+          const questions = await loadQuestionsFromYAML(yamlContent);
+          console.log(`Loaded ${questions.length} questions`);
+
+          dispatch({ type: 'LOAD_QUESTIONS', payload: questions });
+        } else {
+          console.warn(`questions.yaml file not found. Status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Failed to load questions from file:', error);
+      }
+    };
+
+    loadQuestionsFromFile();
+  }, []);
 
   const addPlayer = (player: Player) => {
     dispatch({ type: 'ADD_PLAYER', payload: player });

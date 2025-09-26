@@ -9,7 +9,7 @@ interface TimerProps {
 }
 
 export const Timer: React.FC<TimerProps> = ({ showControls = false, onTimeUp }) => {
-  const { timerState, pauseTimer, resumeTimer, resetTimer, startTimer } = useGame();
+  const { timerState, pauseTimer, resumeTimer, resetTimer, updateTimer } = useGame();
   const styles = useTimerStyles();
 
   useEffect(() => {
@@ -19,17 +19,18 @@ export const Timer: React.FC<TimerProps> = ({ showControls = false, onTimeUp }) 
       interval = setInterval(() => {
         const newTime = timerState.timeRemaining - 1;
         if (newTime <= 0) {
+          updateTimer(0);
           pauseTimer();
           onTimeUp?.();
         } else {
-          // Update timer state through dispatch
-          startTimer(newTime);
+          // Use updateTimer to only update timeRemaining, not initialTime
+          updateTimer(newTime);
         }
       }, 1000);
     }
 
     return () => clearInterval(interval);
-  }, [timerState.isActive, timerState.timeRemaining, pauseTimer, onTimeUp, startTimer]);
+  }, [timerState.isActive, timerState.timeRemaining, pauseTimer, onTimeUp, updateTimer]);
 
   return (
     <div className={styles.container}>
