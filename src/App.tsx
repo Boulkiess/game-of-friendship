@@ -1,25 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import { GameProvider } from './context/GameContext';
+import { PlayerView } from './components/player/PlayerView';
+import { GameMasterView } from './components/gamemaster/GameMasterView';
+import { useAppStyles } from './hooks/useStyles';
 import './App.css';
 
+type ViewType = 'player' | 'gamemaster';
+
 function App() {
+  const [currentView, setCurrentView] = useState<ViewType>('gamemaster');
+  const styles = useAppStyles();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <GameProvider>
+      <div className="app">
+        <nav className={styles.nav}>
+          <div className={styles.navContainer}>
+            <h1 className={styles.navTitle}>Quiz Game of Friendship</h1>
+
+            <div className={styles.navButtons}>
+              <button
+                onClick={() => setCurrentView('player')}
+                className={styles.getNavButton(currentView === 'player')}
+              >
+                Player View
+              </button>
+              <button
+                onClick={() => setCurrentView('gamemaster')}
+                className={styles.getNavButtonGameMaster(currentView === 'gamemaster')}
+              >
+                Game Master
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <main>
+          {currentView === 'player' && <PlayerView />}
+          {currentView === 'gamemaster' && <GameMasterView />}
+        </main>
+      </div>
+    </GameProvider>
   );
 }
 
