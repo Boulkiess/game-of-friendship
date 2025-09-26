@@ -282,17 +282,12 @@ export const PlayerView: React.FC = () => {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.headerTitle}>Game of Friendship</h1>
-        {gameState.selectedAnswerer && (
-          <p className={styles.answererInfo}>
-            Current Answerer: <strong className={styles.answererName}>{gameState.selectedAnswerer}</strong>
-          </p>
-        )}
       </header>
 
       <div className={styles.contentWrapper}>
         {gameState.gameState === 'setup' && (
           <div className={styles.setupContainer}>
-            <p className={styles.setupText}>Game is being set up...</p>
+            <p className={styles.setupText}>The game is being set up...</p>
           </div>
         )}
 

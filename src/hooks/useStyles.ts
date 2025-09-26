@@ -236,48 +236,48 @@ export const useGameMasterViewStyles = () => {
 // PlayerView styles (message-based)
 export const useMessageBasedPlayerViewStyles = () => {
     return useMemo(() => ({
-        container: "min-h-screen bg-gray-100 flex flex-col",
-        header: "bg-white shadow-sm p-4 flex-shrink-0",
-        headerTitle: "text-3xl font-bold text-gray-800 text-center",
-        answererInfo: "text-lg text-blue-600 mt-2 text-center",
-        answererName: "font-bold",
-        contentWrapper: "flex-1 p-4 overflow-y-auto flex flex-col",
+        container: "min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col",
+        header: "bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg p-6 flex-shrink-0",
+        headerTitle: "text-4xl font-bold text-white text-center drop-shadow-sm",
+        answererInfo: "text-xl text-blue-100 mt-3 text-center font-medium",
+        answererName: "font-bold text-white bg-blue-500 bg-opacity-30 px-3 py-1 rounded-full",
+        contentWrapper: "flex-1 p-6 overflow-y-auto flex flex-col",
         ongoingContent: "flex-1 flex flex-col relative",
-        loadingContainer: "min-h-screen bg-gray-100 flex items-center justify-center",
-        loadingContent: "text-center",
-        loadingTitle: "text-7xl font-bold text-gray-800 mb-4",
-        loadingText: "text-6xl text-gray-600",
-        setupContainer: "flex-1 flex items-center justify-center text-center",
-        setupText: "text-3xl text-gray-600",
+        loadingContainer: "min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center",
+        loadingContent: "text-center p-8 bg-white bg-opacity-80 rounded-2xl shadow-xl backdrop-blur-sm",
+        loadingTitle: "text-7xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-6",
+        loadingText: "text-4xl text-gray-700 font-medium",
+        setupContainer: "flex-1 flex items-center justify-center text-center h-full",
+        setupText: "text-4xl text-blue-600 font-semibold",
         completedContainer: "flex-1 flex flex-col items-center justify-center text-center",
-        completedTitle: "text-7xl font-bold text-gray-800 mb-4",
-        // Floating players styles
-        floatingPlayersContainer: "fixed bottom-4 left-4 right-4 pointer-events-none z-30",
+        completedTitle: "text-7xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-6",
+        // Floating players styles - enhanced for social interaction
+        floatingPlayersContainer: "fixed bottom-6 left-6 right-6 pointer-events-none z-30",
         floatingPlayersWrapper: "flex justify-between items-end",
-        floatingPlayerGroup: "flex flex-col space-y-3",
-        floatingPlayerIcon: "bg-white rounded-full shadow-lg p-3 border-2 border-blue-300 pointer-events-auto transform hover:scale-110 transition-transform",
-        floatingPlayerLabel: "text-sm font-semibold text-center bg-white rounded px-2 py-1 shadow-sm border max-w-24 truncate mt-1",
-        // Scoreboard styles
-        scoreboardContainer: "bg-white rounded-lg shadow-lg p-6 mb-6",
-        scoreboardTitle: "text-2xl font-bold text-gray-800 mb-4",
-        scoreboardList: "space-y-2",
-        scoreboardItem: "flex justify-between items-center py-2 px-4 bg-gray-50 rounded",
-        scoreboardRank: "font-semibold",
-        scoreboardScore: "text-lg font-bold text-blue-600",
-        // Question styles
-        questionContainer: "bg-white rounded-lg shadow-lg p-6 mb-6 flex-1 flex flex-col justify-center",
-        questionTitle: "text-7xl font-bold text-gray-800 mb-6 text-center",
-        questionSubtitle: "text-lg text-gray-700 mb-4 text-center",
-        questionContent: "text-6xl text-gray-600 text-center leading-relaxed",
-        // Timer styles
-        timerContainer: "fixed top-6 right-6 bg-white rounded-full shadow-lg p-3 z-40",
+        floatingPlayerGroup: "flex flex-col space-y-4",
+        floatingPlayerIcon: "bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full shadow-xl p-4 border-3 border-white pointer-events-auto transform hover:scale-110 transition-all duration-200 hover:shadow-2xl",
+        floatingPlayerLabel: "text-sm font-bold text-center bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg px-3 py-2 shadow-lg border-2 border-blue-300 max-w-32 truncate mt-2",
+        // Scoreboard styles - more vibrant
+        scoreboardContainer: "bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-2xl p-8 mb-8 border-2 border-blue-200",
+        scoreboardTitle: "text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-6",
+        scoreboardList: "space-y-3",
+        scoreboardItem: "flex justify-between items-center py-3 px-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 border border-blue-200",
+        scoreboardRank: "font-bold text-lg text-blue-700",
+        scoreboardScore: "text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent",
+        // Question styles - enhanced readability with color
+        questionContainer: "bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-3xl shadow-2xl p-10 mb-8 flex-1 flex flex-col justify-center border-2 border-blue-200",
+        questionTitle: "text-6xl font-bold bg-gradient-to-r from-gray-800 to-blue-800 bg-clip-text text-transparent mb-8 text-center leading-tight",
+        questionSubtitle: "text-xl text-blue-700 mb-6 text-center font-medium",
+        questionContent: "text-4xl text-gray-700 text-center leading-relaxed font-medium",
+        // Timer styles - more prominent
+        timerContainer: "fixed top-8 right-8 bg-gradient-to-br from-white to-orange-50 rounded-full shadow-2xl p-4 z-40 border-3 border-orange-200",
         timerDisplay: "flex justify-center items-center",
-        timerTitle: "text-2xl font-bold text-gray-800 mb-2",
+        timerTitle: "text-2xl font-bold text-orange-700 mb-2",
         getTimerDisplay: (timeRemaining: number) =>
-            `text-6xl font-bold ${timeRemaining <= 10 ? 'text-red-600' : 'text-blue-600'}`,
-        // Waiting styles
-        waitingContainer: "bg-white rounded-lg shadow-lg p-6 mb-6 text-center flex-1 flex flex-col justify-center",
-        waitingTitle: "text-4xl font-bold text-gray-800 mb-2",
-        waitingText: "text-3xl text-gray-600"
+            `text-6xl font-bold ${timeRemaining <= 10 ? 'text-red-600' : timeRemaining <= 30 ? 'text-orange-600' : 'text-green-600'}`,
+        // Waiting styles - more engaging
+        waitingContainer: "bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-3xl shadow-2xl p-10 mb-8 text-center flex-1 flex flex-col justify-center border-2 border-blue-200",
+        waitingTitle: "text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent mb-4",
+        waitingText: "text-2xl text-blue-600 font-medium"
     }), []);
 };
