@@ -70,7 +70,7 @@ export const Scoreboard: React.FC<ScoreboardProps> = ({ mode }) => {
                   {getRankIcon(index)}
                 </span>
 
-                <EntityDisplay entity={entity} showType={true} />
+                <EntityDisplay entity={entity} showType={false} />
               </div>
 
               <span className={`text-xl font-bold text-blue-600 ${index === 0 ? 'text-yellow-600' : ''}`}>
