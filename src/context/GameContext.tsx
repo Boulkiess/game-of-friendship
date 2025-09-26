@@ -20,6 +20,8 @@ interface GameContextType extends GameContext {
   updateTimer: (timeRemaining: number) => void;
   openPlayerView: () => void;
   closePlayerView: () => void;
+  sendQuestionToPlayers: (question: Question) => void;
+  clearPlayerView: () => void;
 }
 
 type GameAction =
@@ -33,7 +35,8 @@ type GameAction =
   | { type: 'SET_GAME_STATE'; payload: GameState }
   | { type: 'SET_TIMER_STATE'; payload: Partial<TimerState> }
   | { type: 'SET_ANSWER_MODE'; payload: AnswerMode }
-  | { type: 'SET_SELECTED_ANSWERER'; payload: string };
+  | { type: 'SET_SELECTED_ANSWERER'; payload: string }
+  | { type: 'SET_DISPLAYED_QUESTION'; payload: Question | null };
 
 const initialState: GameContext = {
   players: [],
@@ -47,7 +50,8 @@ const initialState: GameContext = {
     timeRemaining: 0,
     initialTime: 0
   },
-  answerMode: 'individual'
+  answerMode: 'individual',
+  displayedQuestion: null
 };
 
 function gameReducer(state: GameContext, action: GameAction): GameContext {
@@ -86,6 +90,8 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
       return { ...state, answerMode: action.payload };
     case 'SET_SELECTED_ANSWERER':
       return { ...state, selectedAnswerer: action.payload };
+    case 'SET_DISPLAYED_QUESTION':
+      return { ...state, displayedQuestion: action.payload };
     default:
       return state;
   }
@@ -230,6 +236,24 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     playerWindowRef.current = null;
   };
 
+  const sendQuestionToPlayers = (question: Question) => {
+    dispatch({ type: 'SET_DISPLAYED_QUESTION', payload: question });
+    // Stop the timer and set initial value to question's timer (if it has one)
+    const initialTime = question.timer || 0;
+    dispatch({
+      type: 'SET_TIMER_STATE',
+      payload: {
+        isActive: false,
+        timeRemaining: initialTime,
+        initialTime: initialTime
+      }
+    });
+  };
+
+  const clearPlayerView = () => {
+    dispatch({ type: 'SET_DISPLAYED_QUESTION', payload: null });
+  };
+
   const value: GameContextType = {
     ...state,
     addPlayer,
@@ -248,7 +272,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSelectedAnswerer,
     updateTimer,
     openPlayerView,
-    closePlayerView
+    closePlayerView,
+    sendQuestionToPlayers,
+    clearPlayerView
   };
 
   return (

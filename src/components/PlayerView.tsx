@@ -55,18 +55,20 @@ export const PlayerView: React.FC = () => {
   };
 
   const renderCurrentQuestion = () => {
-    if (!gameState.currentQuestion) return null;
+    if (!gameState.displayedQuestion) return null;
 
     return (
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Current Question</h2>
-        <p className="text-lg text-gray-700 mb-4">{gameState.currentQuestion.title}</p>
-        <p className="text-base text-gray-600">{gameState.currentQuestion.content}</p>
+        <p className="text-lg text-gray-700 mb-4">{gameState.displayedQuestion.title}</p>
+        <p className="text-base text-gray-600">{gameState.displayedQuestion.content}</p>
       </div>
     );
   };
 
   const renderTimer = () => {
+    // Only show timer if there's a displayed question and timer is active or has remaining time
+    if (!gameState.displayedQuestion) return null;
     if (!gameState.timerState.isActive && gameState.timerState.timeRemaining === 0) return null;
 
     return (
@@ -105,6 +107,12 @@ export const PlayerView: React.FC = () => {
         {gameState.gameState === 'ongoing' && (
           <>
             {renderTimer()}
+            {!gameState.displayedQuestion && (
+              <div className="bg-white rounded-lg shadow-lg p-6 mb-6 text-center">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Waiting for next question...</h2>
+                <p className="text-gray-600">The Game Master will send the next question shortly.</p>
+              </div>
+            )}
             {renderCurrentQuestion()}
             {renderScoreboard()}
           </>

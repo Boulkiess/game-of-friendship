@@ -9,7 +9,10 @@ export const QuestionSelector: React.FC = () => {
     questions,
     loadQuestions,
     setCurrentQuestion,
-    currentQuestion
+    currentQuestion,
+    displayedQuestion,
+    sendQuestionToPlayers,
+    clearPlayerView
   } = useGame();
   const styles = useQuestionSelectorStyles();
 
@@ -140,6 +143,34 @@ export const QuestionSelector: React.FC = () => {
         <h3 className={styles.questionsHeader}>
           Questions ({filteredQuestions.length})
         </h3>
+
+        {/* Question Control Buttons */}
+        {currentQuestion && (
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+            <h4 className="font-semibold mb-2">Selected Question: {currentQuestion.title}</h4>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => sendQuestionToPlayers(currentQuestion)}
+                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                disabled={displayedQuestion?.title === currentQuestion.title}
+              >
+                {displayedQuestion?.title === currentQuestion.title ? 'Already Sent' : 'Send to Players'}
+              </button>
+              <button
+                onClick={clearPlayerView}
+                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                disabled={!displayedQuestion}
+              >
+                Clear Player View
+              </button>
+            </div>
+            {displayedQuestion && (
+              <p className="text-sm text-gray-600 mt-1">
+                Players currently see: {displayedQuestion.title}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className={styles.questionsList}>
           {filteredQuestions.map(question => (

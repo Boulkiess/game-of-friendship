@@ -34,6 +34,7 @@ export interface GameContext {
   teams: Team[];
   questions: Question[];
   currentQuestion: Question | null;
+  displayedQuestion: Question | null; // Question shown to players (can be different from currentQuestion)
   scores: Map<string, number>; // Player/Team name -> score
   gameState: GameState;
   timerState: TimerState;
