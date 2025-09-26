@@ -215,3 +215,46 @@ export const useGameMasterViewStyles = () => {
         newGameButton: "mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
     }), []);
 };
+
+// PlayerView styles (message-based)
+export const useMessageBasedPlayerViewStyles = () => {
+    return useMemo(() => ({
+        container: "min-h-screen bg-gray-100 p-4",
+        contentWrapper: "max-w-4xl mx-auto",
+        loadingContainer: "min-h-screen bg-gray-100 flex items-center justify-center",
+        loadingContent: "text-center",
+        loadingTitle: "text-4xl font-bold text-gray-800 mb-4",
+        loadingText: "text-gray-600",
+        header: "text-center mb-8",
+        headerTitle: "text-4xl font-bold text-gray-800 mb-2",
+        headerSubtitle: "text-xl text-gray-600",
+        answererInfo: "text-lg text-blue-600 mt-2",
+        answererName: "font-bold",
+        setupContainer: "text-center",
+        setupText: "text-xl text-gray-600",
+        completedContainer: "text-center",
+        completedTitle: "text-3xl font-bold text-gray-800 mb-4",
+        // Scoreboard styles
+        scoreboardContainer: "bg-white rounded-lg shadow-lg p-6 mb-6",
+        scoreboardTitle: "text-2xl font-bold text-gray-800 mb-4",
+        scoreboardList: "space-y-2",
+        scoreboardItem: "flex justify-between items-center py-2 px-4 bg-gray-50 rounded",
+        scoreboardRank: "font-semibold",
+        scoreboardScore: "text-lg font-bold text-blue-600",
+        // Question styles
+        questionContainer: "bg-white rounded-lg shadow-lg p-6 mb-6",
+        questionTitle: "text-2xl font-bold text-gray-800 mb-4",
+        questionSubtitle: "text-lg text-gray-700 mb-4",
+        questionContent: "text-base text-gray-600",
+        // Timer styles
+        timerContainer: "bg-white rounded-lg shadow-lg p-6 mb-6 text-center",
+        timerTitle: "text-2xl font-bold text-gray-800 mb-2",
+        getTimerDisplay: (timeRemaining: number) =>
+            `text-6xl font-bold ${timeRemaining <= 10 ? 'text-red-600' : 'text-blue-600'}`,
+        timerStatus: "text-gray-600 mt-2",
+        // Waiting styles
+        waitingContainer: "bg-white rounded-lg shadow-lg p-6 mb-6 text-center",
+        waitingTitle: "text-2xl font-bold text-gray-800 mb-2",
+        waitingText: "text-gray-600"
+    }), []);
+};
