@@ -245,12 +245,12 @@ export const useMessageBasedPlayerViewStyles = () => {
         ongoingContent: "flex-1 flex flex-col relative",
         loadingContainer: "min-h-screen bg-gray-100 flex items-center justify-center",
         loadingContent: "text-center",
-        loadingTitle: "text-4xl font-bold text-gray-800 mb-4",
-        loadingText: "text-gray-600",
+        loadingTitle: "text-7xl font-bold text-gray-800 mb-4",
+        loadingText: "text-6xl text-gray-600",
         setupContainer: "flex-1 flex items-center justify-center text-center",
-        setupText: "text-xl text-gray-600",
+        setupText: "text-3xl text-gray-600",
         completedContainer: "flex-1 flex flex-col items-center justify-center text-center",
-        completedTitle: "text-3xl font-bold text-gray-800 mb-4",
+        completedTitle: "text-7xl font-bold text-gray-800 mb-4",
         // Floating players styles
         floatingPlayersContainer: "fixed bottom-4 left-4 right-4 pointer-events-none z-30",
         floatingPlayersWrapper: "flex justify-between items-end",
@@ -266,9 +266,9 @@ export const useMessageBasedPlayerViewStyles = () => {
         scoreboardScore: "text-lg font-bold text-blue-600",
         // Question styles
         questionContainer: "bg-white rounded-lg shadow-lg p-6 mb-6 flex-1 flex flex-col justify-center",
-        questionTitle: "text-4xl font-bold text-gray-800 mb-6 text-center",
+        questionTitle: "text-7xl font-bold text-gray-800 mb-6 text-center",
         questionSubtitle: "text-lg text-gray-700 mb-4 text-center",
-        questionContent: "text-2xl text-gray-600 text-center leading-relaxed",
+        questionContent: "text-6xl text-gray-600 text-center leading-relaxed",
         // Timer styles
         timerContainer: "fixed top-6 right-6 bg-white rounded-full shadow-lg p-3 z-40",
         timerDisplay: "flex justify-center items-center",
@@ -277,7 +277,7 @@ export const useMessageBasedPlayerViewStyles = () => {
             `text-6xl font-bold ${timeRemaining <= 10 ? 'text-red-600' : 'text-blue-600'}`,
         // Waiting styles
         waitingContainer: "bg-white rounded-lg shadow-lg p-6 mb-6 text-center flex-1 flex flex-col justify-center",
-        waitingTitle: "text-2xl font-bold text-gray-800 mb-2",
-        waitingText: "text-gray-600"
+        waitingTitle: "text-4xl font-bold text-gray-800 mb-2",
+        waitingText: "text-3xl text-gray-600"
     }), []);
 };
