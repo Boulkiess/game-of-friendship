@@ -40,6 +40,7 @@ export const Timer: React.FC<TimerProps> = ({ showControls = false, onTimeUp }) 
           initialTime={timerState.initialTime}
           size={150}
           strokeWidth={12}
+          isPaused={!timerState.isActive}
         />
       </div>
 

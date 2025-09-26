@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GameContext, Question } from '../types';
 import { useMessageBasedPlayerViewStyles } from '../hooks/useStyles';
 import { EntityDisplay, createEntityInfo } from './shared/EntityDisplay';
+import { CircularTimer } from './shared/CircularTimer';
 
 export const PlayerView: React.FC = () => {
   const [gameState, setGameState] = useState<GameContext | null>(null);
@@ -129,8 +130,7 @@ export const PlayerView: React.FC = () => {
 
     return (
       <div className={styles.questionContainer}>
-        <h2 className={styles.questionTitle}>Current Question</h2>
-        <p className={styles.questionSubtitle}>{gameState.displayedQuestion.title}</p>
+        <h2 className={styles.questionTitle}>{gameState.displayedQuestion.title}</h2>
         <p className={styles.questionContent}>{gameState.displayedQuestion.content}</p>
       </div>
     );
@@ -143,30 +143,31 @@ export const PlayerView: React.FC = () => {
 
     return (
       <div className={styles.timerContainer}>
-        <h2 className={styles.timerTitle}>Timer</h2>
-        <div className={styles.getTimerDisplay(gameState.timerState.timeRemaining)}>
-          {gameState.timerState.timeRemaining}
+        <div className={styles.timerDisplay}>
+          <CircularTimer
+            timeRemaining={gameState.timerState.timeRemaining}
+            initialTime={gameState.timerState.initialTime}
+            size={120}
+            strokeWidth={12}
+            isPaused={!gameState.timerState.isActive}
+          />
         </div>
-        <p className={styles.timerStatus}>
-          {gameState.timerState.isActive ? 'Time remaining' : 'Paused'}
-        </p>
       </div>
     );
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.contentWrapper}>
-        <header className={styles.header}>
-          <h1 className={styles.headerTitle}>Game of Friendship</h1>
-          <p className={styles.headerSubtitle}>Player View</p>
-          {gameState.selectedAnswerer && (
-            <p className={styles.answererInfo}>
-              Current Answerer: <strong className={styles.answererName}>{gameState.selectedAnswerer}</strong>
-            </p>
-          )}
-        </header>
+      <header className={styles.header}>
+        <h1 className={styles.headerTitle}>Game of Friendship</h1>
+        {gameState.selectedAnswerer && (
+          <p className={styles.answererInfo}>
+            Current Answerer: <strong className={styles.answererName}>{gameState.selectedAnswerer}</strong>
+          </p>
+        )}
+      </header>
 
+      <div className={styles.contentWrapper}>
         {gameState.gameState === 'setup' && (
           <div className={styles.setupContainer}>
             <p className={styles.setupText}>Game is being set up...</p>
@@ -174,17 +175,18 @@ export const PlayerView: React.FC = () => {
         )}
 
         {gameState.gameState === 'ongoing' && (
-          <>
-            {renderTimer()}
-            {!gameState.displayedQuestion && (
+          <div className={styles.ongoingContent}>
+            {!gameState.displayedQuestion ? (
               <div className={styles.waitingContainer}>
                 <h2 className={styles.waitingTitle}>Waiting for next question...</h2>
                 <p className={styles.waitingText}>The Game Master will send the next question shortly.</p>
               </div>
+            ) : (
+              renderCurrentQuestion()
             )}
-            {renderCurrentQuestion()}
+            {renderTimer()}
             {renderScoreboard()}
-          </>
+          </div>
         )}
 
         {gameState.gameState === 'completed' && (

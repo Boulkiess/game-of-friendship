@@ -5,13 +5,15 @@ interface CircularTimerProps {
     initialTime: number;
     size?: number;
     strokeWidth?: number;
+    isPaused?: boolean;
 }
 
 export const CircularTimer: React.FC<CircularTimerProps> = ({
     timeRemaining,
     initialTime,
     size = 120,
-    strokeWidth = 8
+    strokeWidth = 8,
+    isPaused = false
 }) => {
     const center = size / 2;
     const radius = center - strokeWidth / 2;
@@ -28,6 +30,8 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
     };
 
     const getTimerColor = () => {
+        if (isPaused) return '#9ca3af'; // gray-400
+
         const percentage = progress * 100;
         if (percentage <= 25) return '#dc2626'; // red-600
         if (percentage <= 50) return '#d97706'; // amber-600
@@ -75,7 +79,7 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({
             <div className="absolute inset-0 flex items-center justify-center">
                 <span
                     className="text-2xl font-bold"
-                    style={{ color: getTimerColor() }}
+                    style={{ color: isPaused ? '#9ca3af' : getTimerColor() }}
                 >
                     {formatTime(timeRemaining)}
                 </span>
