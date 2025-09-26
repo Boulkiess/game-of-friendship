@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useRef } from 'react';
 import { GameContext, Player, Team, Question, GameState, TimerState, AnswerMode } from '../types';
 import { loadQuestionsFromYAML } from '../utils/yamlLoader';
 
@@ -18,6 +18,8 @@ interface GameContextType extends GameContext {
   setAnswerMode: (mode: AnswerMode) => void;
   setSelectedAnswerer: (name: string) => void;
   updateTimer: (timeRemaining: number) => void;
+  openPlayerView: () => void;
+  closePlayerView: () => void;
 }
 
 type GameAction =
@@ -93,6 +95,17 @@ const GameContextProvider = createContext<GameContextType | undefined>(undefined
 
 export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
+  const playerWindowRef = useRef<Window | null>(null);
+
+  // Post message to player window when state changes
+  useEffect(() => {
+    if (playerWindowRef.current && !playerWindowRef.current.closed) {
+      playerWindowRef.current.postMessage({
+        type: 'GAME_STATE_UPDATE',
+        payload: state
+      }, window.location.origin);
+    }
+  }, [state]);
 
   // Load questions from questions.yaml file on initialization
   useEffect(() => {
@@ -150,6 +163,11 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const setGameState = (gameState: GameState) => {
     dispatch({ type: 'SET_GAME_STATE', payload: gameState });
+
+    // Auto-open player view when game starts
+    if ((gameState === 'ongoing' || gameState === 'completed') && (!playerWindowRef.current || playerWindowRef.current.closed)) {
+      openPlayerView();
+    }
   };
 
   const startTimer = (seconds: number) => {
@@ -192,6 +210,26 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'SET_SELECTED_ANSWERER', payload: name });
   };
 
+  const openPlayerView = () => {
+    if (playerWindowRef.current && !playerWindowRef.current.closed) {
+      playerWindowRef.current.focus();
+      return;
+    }
+
+    playerWindowRef.current = window.open(
+      '/player-view',
+      'playerView',
+      'width=800,height=600,scrollbars=yes,resizable=yes'
+    );
+  };
+
+  const closePlayerView = () => {
+    if (playerWindowRef.current && !playerWindowRef.current.closed) {
+      playerWindowRef.current.close();
+    }
+    playerWindowRef.current = null;
+  };
+
   const value: GameContextType = {
     ...state,
     addPlayer,
@@ -208,7 +246,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     resetTimer,
     setAnswerMode,
     setSelectedAnswerer,
-    updateTimer
+    updateTimer,
+    openPlayerView,
+    closePlayerView
   };
 
   return (

@@ -4,42 +4,62 @@ import { PlayerView } from './components/player/PlayerView';
 import { GameMasterView } from './components/gamemaster/GameMasterView';
 import { useAppStyles } from './hooks/useStyles';
 import './App.css';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
-type ViewType = 'player' | 'gamemaster';
-
-function App() {
-  const [currentView, setCurrentView] = useState<ViewType>('gamemaster');
+const Navigation: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const styles = useAppStyles();
 
+  const openPlayerView = () => {
+    window.open('/player-view', 'playerView', 'width=800,height=600,scrollbars=yes,resizable=yes');
+  };
+
+  return (
+    <nav className={styles.nav}>
+      <div className={styles.navContainer}>
+        <h1 className={styles.navTitle}>Quiz Game of Friendship</h1>
+        <div className={styles.navButtons}>
+          <button
+            onClick={() => navigate('/')}
+            className={styles.getNavButtonGameMaster(location.pathname === '/')}
+          >
+            Game Master
+          </button>
+          <button
+            onClick={openPlayerView}
+            className={styles.getNavButton(location.pathname === '/player-view')}
+          >
+            Open Player View
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+function App() {
   return (
     <GameProvider>
-      <div className="app">
-        <nav className={styles.nav}>
-          <div className={styles.navContainer}>
-            <h1 className={styles.navTitle}>Quiz Game of Friendship</h1>
-
-            <div className={styles.navButtons}>
-              <button
-                onClick={() => setCurrentView('player')}
-                className={styles.getNavButton(currentView === 'player')}
-              >
-                Player View
-              </button>
-              <button
-                onClick={() => setCurrentView('gamemaster')}
-                className={styles.getNavButtonGameMaster(currentView === 'gamemaster')}
-              >
-                Game Master
-              </button>
-            </div>
-          </div>
-        </nav>
-
-        <main>
-          {currentView === 'player' && <PlayerView />}
-          {currentView === 'gamemaster' && <GameMasterView />}
-        </main>
-      </div>
+      <Router>
+        <div className="app">
+          <Routes>
+            <Route path="/" element={
+              <>
+                <Navigation />
+                <main>
+                  <GameMasterView />
+                </main>
+              </>
+            } />
+            <Route path="/player-view" element={
+              <main>
+                <PlayerView />
+              </main>
+            } />
+          </Routes>
+        </div>
+      </Router>
     </GameProvider>
   );
 }
