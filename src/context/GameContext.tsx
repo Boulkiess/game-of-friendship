@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect, useRef } from 'react';
 import { GameContext, Player, Team, Question, GameState, TimerState, AnswerMode } from '../types';
-import { loadQuestionsFromYAML } from '../utils/yamlLoader';
+import { loadQuestionsFromYAML, loadGameDataFromYAML } from '../utils/yamlLoader';
 
 interface GameContextType extends GameContext {
   addPlayer: (player: Player) => void;
@@ -22,6 +22,8 @@ interface GameContextType extends GameContext {
   closePlayerView: () => void;
   sendQuestionToPlayers: (question: Question) => void;
   clearPlayerView: () => void;
+  setSelectedOpponents: (opponent1: string, opponent2: string) => void;
+  clearSelectedOpponents: () => void;
 }
 
 type GameAction =
@@ -30,13 +32,16 @@ type GameAction =
   | { type: 'ADD_TEAM'; payload: Team }
   | { type: 'REMOVE_TEAM'; payload: string }
   | { type: 'LOAD_QUESTIONS'; payload: Question[] }
+  | { type: 'LOAD_INITIAL_PLAYERS'; payload: Player[] }
   | { type: 'SET_CURRENT_QUESTION'; payload: Question | null }
   | { type: 'UPDATE_SCORE'; payload: { name: string; points: number } }
   | { type: 'SET_GAME_STATE'; payload: GameState }
   | { type: 'SET_TIMER_STATE'; payload: Partial<TimerState> }
   | { type: 'SET_ANSWER_MODE'; payload: AnswerMode }
   | { type: 'SET_SELECTED_ANSWERER'; payload: string }
-  | { type: 'SET_DISPLAYED_QUESTION'; payload: Question | null };
+  | { type: 'SET_DISPLAYED_QUESTION'; payload: Question | null }
+  | { type: 'SET_SELECTED_OPPONENTS'; payload: { opponent1: string; opponent2: string } }
+  | { type: 'CLEAR_SELECTED_OPPONENTS' };
 
 const initialState: GameContext = {
   players: [],
@@ -51,7 +56,9 @@ const initialState: GameContext = {
     initialTime: 0
   },
   answerMode: 'individual',
-  displayedQuestion: null
+  displayedQuestion: null,
+  selectedOpponent1: undefined,
+  selectedOpponent2: undefined
 };
 
 function gameReducer(state: GameContext, action: GameAction): GameContext {
@@ -72,6 +79,11 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
       };
     case 'LOAD_QUESTIONS':
       return { ...state, questions: action.payload };
+    case 'LOAD_INITIAL_PLAYERS':
+      // Merge with existing players, avoiding duplicates
+      const existingPlayerNames = state.players.map(p => p.name);
+      const newPlayers = action.payload.filter(p => !existingPlayerNames.includes(p.name));
+      return { ...state, players: [...state.players, ...newPlayers] };
     case 'SET_CURRENT_QUESTION':
       return { ...state, currentQuestion: action.payload };
     case 'UPDATE_SCORE':
@@ -92,6 +104,18 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
       return { ...state, selectedAnswerer: action.payload };
     case 'SET_DISPLAYED_QUESTION':
       return { ...state, displayedQuestion: action.payload };
+    case 'SET_SELECTED_OPPONENTS':
+      return {
+        ...state,
+        selectedOpponent1: action.payload.opponent1,
+        selectedOpponent2: action.payload.opponent2
+      };
+    case 'CLEAR_SELECTED_OPPONENTS':
+      return {
+        ...state,
+        selectedOpponent1: undefined,
+        selectedOpponent2: undefined
+      };
     default:
       return state;
   }
@@ -113,30 +137,33 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [state]);
 
-  // Load questions from questions.yaml file on initialization
+  // Load game data from game.yaml file on initialization
   useEffect(() => {
-    const loadQuestionsFromFile = async () => {
+    const loadGameDataFromFile = async () => {
       try {
-        console.log('Attempting to load questions from /questions.yaml');
-        const response = await fetch('/questions.yaml');
+        console.log('Attempting to load game data from /game.yaml');
+        const response = await fetch('/game.yaml');
 
         if (response.ok) {
           const yamlContent = await response.text();
           console.log('YAML content loaded:', yamlContent.substring(0, 100) + '...');
 
-          const questions = await loadQuestionsFromYAML(yamlContent);
-          console.log(`Loaded ${questions.length} questions`);
+          const gameData = await loadGameDataFromYAML(yamlContent);
+          console.log(`Loaded ${gameData.questions.length} questions and ${gameData.players?.length || 0} players`);
 
-          dispatch({ type: 'LOAD_QUESTIONS', payload: questions });
+          dispatch({ type: 'LOAD_QUESTIONS', payload: gameData.questions });
+          if (gameData.players && gameData.players.length > 0) {
+            dispatch({ type: 'LOAD_INITIAL_PLAYERS', payload: gameData.players });
+          }
         } else {
-          console.warn(`questions.yaml file not found. Status: ${response.status}`);
+          console.warn(`game.yaml file not found. Status: ${response.status}.`);
         }
       } catch (error) {
-        console.error('Failed to load questions from file:', error);
+        console.error('Failed to load game data from file:', error);
       }
     };
 
-    loadQuestionsFromFile();
+    loadGameDataFromFile();
   }, []);
 
   const addPlayer = (player: Player) => {
@@ -216,6 +243,14 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     dispatch({ type: 'SET_SELECTED_ANSWERER', payload: name });
   };
 
+  const setSelectedOpponents = (opponent1: string, opponent2: string) => {
+    dispatch({ type: 'SET_SELECTED_OPPONENTS', payload: { opponent1, opponent2 } });
+  };
+
+  const clearSelectedOpponents = () => {
+    dispatch({ type: 'CLEAR_SELECTED_OPPONENTS' });
+  };
+
   const openPlayerView = () => {
     if (playerWindowRef.current && !playerWindowRef.current.closed) {
       playerWindowRef.current.focus();
@@ -274,7 +309,9 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     openPlayerView,
     closePlayerView,
     sendQuestionToPlayers,
-    clearPlayerView
+    clearPlayerView,
+    setSelectedOpponents,
+    clearSelectedOpponents
   };
 
   return (

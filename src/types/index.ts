@@ -27,7 +27,7 @@ export interface TimerState {
   initialTime: number;
 }
 
-export type AnswerMode = 'individual' | 'duel' | 'teams';
+export type AnswerMode = 'individual' | 'duel' | 'teams' | 'teams-duel';
 
 export interface GameContext {
   players: Player[];
@@ -40,6 +40,8 @@ export interface GameContext {
   timerState: TimerState;
   answerMode: AnswerMode;
   selectedAnswerer?: string; // Player or team name
+  selectedOpponent1?: string; // First opponent in duel modes
+  selectedOpponent2?: string; // Second opponent in duel modes
 }
 
 export interface QuestionFilters {

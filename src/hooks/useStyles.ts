@@ -190,7 +190,18 @@ export const useScoreControlStyles = () => {
         manualAdjustment: "flex items-center space-x-2",
         select: "flex-1 px-2 py-1 border rounded",
         manualInput: "w-20 px-2 py-1 border rounded",
-        applyButton: "px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:bg-gray-400"
+        applyButton: "px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:bg-gray-400",
+        duelContainer: "grid grid-cols-1 md:grid-cols-2 gap-4",
+        duelColumn: "space-y-2",
+        duelColumnTitle: "font-semibold text-center mb-2 text-sm text-gray-600",
+        duelOpponentList: "space-y-1",
+        duelOpponentLabel: "flex items-center p-2 border rounded hover:bg-gray-50 cursor-pointer",
+        getDuelOpponentLabel: (isSelected: boolean) =>
+            `flex items-center p-2 border rounded cursor-pointer ${isSelected ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-50'}`,
+        duelRadioInput: "mr-2",
+        selectedOpponentsInfo: "bg-blue-50 p-3 rounded mb-4",
+        selectedOpponentsTitle: "font-semibold mb-2",
+        selectedOpponentsList: "text-sm text-gray-700"
     }), []);
 };
 
