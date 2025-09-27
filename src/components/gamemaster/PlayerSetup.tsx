@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useGame } from '../../context/GameContext';
 import { Player, Team } from '../../types';
 import { usePlayerSetupStyles, TEAM_COLORS } from '../../hooks/useStyles';
@@ -14,26 +14,27 @@ export const PlayerSetup: React.FC = () => {
     removePlayer, 
     addTeam, 
     removeTeam,
-    updateTeamColor
+    updateTeamColor,
+    updateTeam
   } = useGame();
   const styles = usePlayerSetupStyles();
   
   const [playerName, setPlayerName] = useState('');
-  const [teamName, setTeamName] = useState('');
-  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
-  const [selectedColor, setSelectedColor] = useState(TEAM_COLORS[0].value);
+  const [colorPickerTeamId, setColorPickerTeamId] = useState<string | null>(null);
+
+  // Calculate all assigned players once for all teams
+  const allAssignedPlayers = useMemo(() => {
+    return teams.flatMap(t => t.players.map(p => p.name));
+  }, [teams]);
+
+  // Calculate available players (unassigned to any team)
+  const availablePlayers = useMemo(() => {
+    return players.filter(player => !allAssignedPlayers.includes(player.name));
+  }, [players, allAssignedPlayers]);
 
   // Get used colors to help with selection
   const usedColors = teams.map(team => team.color);
   const availableColors = TEAM_COLORS.filter(color => !usedColors.includes(color.value));
-  const suggestedColor = availableColors.length > 0 ? availableColors[0].value : TEAM_COLORS[0].value;
-
-  // Update suggested color when teams change
-  useEffect(() => {
-    if (!usedColors.includes(selectedColor)) return;
-    const nextAvailable = availableColors[0]?.value || TEAM_COLORS[0].value;
-    setSelectedColor(nextAvailable);
-  }, [teams]);
 
   const handleAddPlayer = () => {
     if (playerName.trim() && !players.find(p => p.name === playerName)) {
@@ -42,34 +43,48 @@ export const PlayerSetup: React.FC = () => {
     }
   };
 
-  const handleCreateTeam = () => {
-    if (teamName.trim() && selectedPlayers.length > 0) {
-      const teamPlayers = players.filter(p => selectedPlayers.includes(p.name));
-      const team: Team = {
-        id: Date.now().toString(),
-        name: teamName.trim(),
-        players: teamPlayers,
-        color: selectedColor
+  const handleCreateNewTeam = () => {
+    const newTeam: Team = {
+      id: Date.now().toString(),
+      name: `New Team (${teams.length + 1})`,
+      players: [],
+      color: availableColors[0]?.value || TEAM_COLORS[0].value
+    };
+    addTeam(newTeam);
+  };
+
+  const handleColorSelect = (teamId: string, color: string) => {
+    updateTeamColor(teamId, color);
+    setColorPickerTeamId(null);
+  };
+
+  const handleAddPlayerToTeam = (teamId: string, player: Player) => {
+    const team = teams.find(t => t.id === teamId);
+    if (team && !team.players.find(p => p.name === player.name)) {
+      const updatedTeam = {
+        ...team,
+        players: [...team.players, player]
       };
-      addTeam(team);
-      setTeamName('');
-      setSelectedPlayers([]);
-      // Auto-select next available color
-      const nextAvailable = TEAM_COLORS.find(color =>
-        !usedColors.includes(color.value) && color.value !== selectedColor
-      );
-      if (nextAvailable) {
-        setSelectedColor(nextAvailable.value);
-      }
+      updateTeam(teamId, updatedTeam);
     }
   };
 
-  const togglePlayerSelection = (playerName: string) => {
-    setSelectedPlayers(prev => 
-      prev.includes(playerName)
-        ? prev.filter(name => name !== playerName)
-        : [...prev, playerName]
-    );
+  const handleRemovePlayerFromTeam = (teamId: string, playerName: string) => {
+    const team = teams.find(t => t.id === teamId);
+    if (team) {
+      const updatedTeam = {
+        ...team,
+        players: team.players.filter(p => p.name !== playerName)
+      };
+      updateTeam(teamId, updatedTeam);
+    }
+  };
+
+  const handleUpdateTeamName = (teamId: string, name: string) => {
+    const team = teams.find(t => t.id === teamId);
+    if (team) {
+      updateTeam(teamId, { ...team, name });
+    }
   };
 
   const renderPlayerCard = (player: Player) => (
@@ -92,12 +107,130 @@ export const PlayerSetup: React.FC = () => {
     </div>
   );
 
+  const renderTeamEditor = (team: Team) => {
+    const isColorPickerOpen = colorPickerTeamId === team.id;
+
+    return (
+      <div key={team.id} className={styles.teamItem}>
+        <div className={styles.teamHeader}>
+          <div className="flex items-center space-x-3">
+            <div
+              className={`${styles.teamColorIndicator} cursor-pointer hover:scale-110 transition-transform relative`}
+              style={{ backgroundColor: team.color }}
+              onClick={() => setColorPickerTeamId(isColorPickerOpen ? null : team.id)}
+              title="Click to change color"
+            />
+
+            {/* Color picker dropdown */}
+            {isColorPickerOpen && (
+              <div className="absolute z-10 mt-2 p-2 bg-white border rounded-lg shadow-lg">
+                <div className="grid grid-cols-4 gap-2">
+                  {TEAM_COLORS.map(color => (
+                    <button
+                      key={color.value}
+                      onClick={() => handleColorSelect(team.id, color.value)}
+                      className={`w-8 h-8 rounded-full border-2 cursor-pointer hover:scale-110 transition-transform ${team.color === color.value ? 'border-gray-800' : 'border-gray-300'
+                        }`}
+                      style={{ backgroundColor: color.value }}
+                      title={color.name}
+                      disabled={usedColors.includes(color.value) && color.value !== team.color}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <input
+              type="text"
+              value={team.name}
+              onChange={(e) => handleUpdateTeamName(team.id, e.target.value)}
+              className="text-lg font-semibold bg-transparent border-b border-gray-300 focus:border-blue-500 outline-none flex-1"
+              placeholder="Team name"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => removeTeam(team.id)}
+              className="text-gray-400 hover:text-red-500 p-1 rounded hover:bg-red-50 transition-colors"
+              title="Remove team"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Current Team Members */}
+        <div className="mt-3">
+          <span className="font-medium text-sm text-gray-700">Team Members ({team.players.length}):</span>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {team.players.map(player => (
+              <div
+                key={player.name}
+                className="inline-flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg cursor-pointer hover:bg-red-100 hover:text-red-700 transition-colors"
+                onClick={() => handleRemovePlayerFromTeam(team.id, player.name)}
+                title="Click to remove from team"
+              >
+                <PlayerAvatar player={player} size="small" />
+                <span className="text-sm">{player.name}</span>
+                <svg className="w-3 h-3 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+            ))}
+            {team.players.length === 0 && (
+              <span className="text-sm text-gray-500 italic">No players assigned</span>
+            )}
+          </div>
+        </div>
+
+        {/* Available Players */}
+        {availablePlayers.length > 0 && (
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <span className="font-medium text-sm text-gray-700">Available Players (click to add):</span>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {availablePlayers.map(player => (
+                <div
+                  key={`available-${player.name}-${team.id}`}
+                  className="inline-flex items-center space-x-2 bg-white px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-100 hover:text-blue-700 border transition-colors"
+                  onClick={() => handleAddPlayerToTeam(team.id, player)}
+                  title="Click to add to team"
+                >
+                  <PlayerAvatar player={player} size="small" />
+                  <span className="text-sm">{player.name}</span>
+                  <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Close color picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (colorPickerTeamId && !(event.target as Element).closest('.relative')) {
+        setColorPickerTeamId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [colorPickerTeamId]);
+
   return (
     <div className={styles.container}>
       {/* Add Players Section */}
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Add Players</h3>
-        
+
         <div className={styles.addPlayerForm}>
           <input
             type="text"
@@ -120,124 +253,28 @@ export const PlayerSetup: React.FC = () => {
         </div>
       </div>
 
-      {/* Create Teams Section */}
+      {/* Teams Section */}
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Create Teams</h3>
-        
-        <div className={styles.playerSelection}>
-          <input
-            type="text"
-            value={teamName}
-            onChange={(e) => setTeamName(e.target.value)}
-            placeholder="Enter team name"
-            className={styles.teamInput}
-          />
-
-          <div className="mb-4">
-            <p className={styles.selectionLabel}>Select team color:</p>
-            <div className={styles.colorPalette}>
-              {TEAM_COLORS.map(color => (
-                <button
-                  key={color.value}
-                  onClick={() => setSelectedColor(color.value)}
-                  className={selectedColor === color.value ? styles.selectedColorOption : styles.colorOption}
-                  style={{ backgroundColor: color.value }}
-                  title={color.name}
-                  disabled={usedColors.includes(color.value)}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.playerSelection}>
-            <p className={styles.selectionLabel}>Select players for team:</p>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {players.map(player => {
-                const isSelected = selectedPlayers.includes(player.name);
-
-                return (
-                  <label
-                    key={player.name}
-                    className={`flex items-center p-2 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-50'
-                      }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => togglePlayerSelection(player.name)}
-                      className="mr-3"
-                    />
-                    <EntityDisplay
-                      entity={createEntityInfo(player.name, players, teams)}
-                      showType={false}
-                      avatarSize="small"
-                    />
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-          
+        <div className="flex items-center justify-between mb-4">
+          <h3 className={styles.sectionTitle}>Teams</h3>
           <button
-            onClick={handleCreateTeam}
-            disabled={!teamName.trim() || selectedPlayers.length === 0}
-            className={styles.createTeamButton}
+            onClick={handleCreateNewTeam}
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center space-x-2"
           >
-            Create Team
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span>New Team</span>
           </button>
         </div>
 
         <div className={styles.teamsList}>
-          {teams.map(team => (
-            <div key={team.id} className={styles.teamItem}>
-              <div className={styles.teamHeader}>
-                <div className="flex items-center space-x-3">
-                  <div
-                    className={styles.teamColorIndicator}
-                    style={{ backgroundColor: team.color }}
-                  />
-                  <EntityDisplay
-                    entity={createEntityInfo(team.name, players, teams)}
-                    showType={false}
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <select
-                    value={team.color}
-                    onChange={(e) => updateTeamColor(team.id, e.target.value)}
-                    className="text-sm border rounded px-2 py-1"
-                  >
-                    {TEAM_COLORS.map(color => (
-                      <option
-                        key={color.value}
-                        value={color.value}
-                        disabled={usedColors.includes(color.value) && color.value !== team.color}
-                      >
-                        {color.name}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    onClick={() => removeTeam(team.id)}
-                    className={styles.removeButton}
-                  >
-                    Remove Team
-                  </button>
-                </div>
-              </div>
-              <div className="mt-2 text-sm text-gray-600">
-                <span className="font-medium">Members:</span>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {team.players.map(player => (
-                    <span key={player.name} className="inline-flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded text-xs">
-                      <PlayerAvatar player={player} size="small" />
-                      <span>{player.name}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
+          {teams.map(renderTeamEditor)}
+          {teams.length === 0 && (
+            <p className="text-gray-500 text-center py-8">
+              No teams created yet. Click "New Team" to get started!
+            </p>
+          )}
         </div>
       </div>
     </div>

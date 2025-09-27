@@ -7,6 +7,7 @@ interface GameContextType extends GameContext {
   removePlayer: (playerName: string) => void;
   addTeam: (team: Team) => void;
   removeTeam: (teamId: string) => void;
+  updateTeam: (teamId: string, updatedTeam: Team) => void;
   loadQuestions: (questions: Question[]) => void;
   setCurrentQuestion: (question: Question | null) => void;
   updateScore: (playerOrTeamName: string, points: number) => void;
@@ -35,6 +36,7 @@ type GameAction =
   | { type: 'REMOVE_PLAYER'; payload: string }
   | { type: 'ADD_TEAM'; payload: Team }
   | { type: 'REMOVE_TEAM'; payload: string }
+  | { type: 'UPDATE_TEAM'; payload: { teamId: string; team: Team } }
   | { type: 'LOAD_QUESTIONS'; payload: Question[] }
   | { type: 'LOAD_INITIAL_PLAYERS'; payload: Player[] }
   | { type: 'SET_CURRENT_QUESTION'; payload: Question | null }
@@ -86,6 +88,13 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
       return {
         ...state,
         teams: state.teams.filter(t => t.id !== action.payload)
+      };
+    case 'UPDATE_TEAM':
+      return {
+        ...state,
+        teams: state.teams.map(team =>
+          team.id === action.payload.teamId ? action.payload.team : team
+        )
       };
     case 'LOAD_QUESTIONS':
       return { ...state, questions: action.payload };
@@ -207,6 +216,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const removeTeam = (teamId: string) => {
     dispatch({ type: 'REMOVE_TEAM', payload: teamId });
+  };
+
+  const updateTeam = (teamId: string, updatedTeam: Team) => {
+    dispatch({ type: 'UPDATE_TEAM', payload: { teamId, team: updatedTeam } });
   };
 
   const loadQuestions = (questions: Question[]) => {
@@ -338,6 +351,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     removePlayer,
     addTeam,
     removeTeam,
+    updateTeam,
     loadQuestions,
     setCurrentQuestion,
     updateScore,
