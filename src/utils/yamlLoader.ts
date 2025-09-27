@@ -47,7 +47,7 @@ export const loadGameDataFromYAML = async (yamlContent: string): Promise<GameDat
       tags: q.tags || [],
       targets: q.targets,
       timer: q.timer,
-      photo: q.photo
+      image: q.image ? `/images/questions/${q.image}` : undefined
     }));
 
     const players: Player[] = data.players
@@ -57,7 +57,7 @@ export const loadGameDataFromYAML = async (yamlContent: string): Promise<GameDat
         } else {
           return {
             name: p.name,
-            profilePicture: p.profilePicture
+            profilePicture: p.profilePicture ? `/images/players/${p.profilePicture}` : undefined
           };
         }
       })
@@ -69,14 +69,35 @@ export const loadGameDataFromYAML = async (yamlContent: string): Promise<GameDat
   }
 };
 
-export const loadQuestionsFromFile = (file: File): Promise<Question[]> => {
+export const loadQuestionsFromFile = async (file: File): Promise<Question[]> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     
     reader.onload = async (event) => {
       try {
         const yamlContent = event.target?.result as string;
-        const questions = await loadQuestionsFromYAML(yamlContent);
+        const data = yaml.load(yamlContent) as any;
+
+        if (!data.questions || !Array.isArray(data.questions)) {
+          throw new Error('Invalid YAML format: questions array not found');
+        }
+
+        const questions = data.questions.map((q: any) => {
+          const imageField = q.image ? `/images/questions/${q.image}` : undefined;
+          console.log('Processing question:', q.title, 'image field:', q.image, 'processed path:', imageField);
+
+          return {
+            title: q.title,
+            content: q.content,
+            answer: q.answer || '', // Provide default empty answer
+            difficulty: q.difficulty,
+            tags: q.tags || [],
+            targets: q.targets,
+            timer: q.timer,
+            image: imageField
+          };
+        });
+
         resolve(questions);
       } catch (error) {
         reject(error);
@@ -86,4 +107,9 @@ export const loadQuestionsFromFile = (file: File): Promise<Question[]> => {
     reader.onerror = () => reject(new Error('Failed to read file'));
     reader.readAsText(file);
   });
+};
+
+export const getImageFilename = (imagePath?: string): string | undefined => {
+  if (!imagePath) return undefined;
+  return imagePath.split('/').pop();
 };

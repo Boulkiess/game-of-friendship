@@ -1,13 +1,13 @@
 players:
   - name: "Alice"
-    profilePicture: "/images/players/alice.jpg"
+    profilePicture: "alice.jpg"  # Just the filename, path will be added automatically
   - name: "Bob"
-    profilePicture: "/images/players/bob.jpg"
+    profilePicture: "bob.jpg"
   - name: "Charlie"
-    profilePicture: "/images/players/charlie.jpg"
+    profilePicture: "charlie.jpg"
   - name: "Diana"
-    profilePicture: "/images/players/diana.jpg"
-  - "Eve"  # Player without profile picture (backward compatibility)
+    profilePicture: "diana.jpg"
+  - "Eve"  # Player without profile picture
 
 questions:
   - title: "Capital City Knowledge"
@@ -23,6 +23,7 @@ questions:
     difficulty: 1
     tags: ["math", "multiplication"]
     timer: 45
+    image: "cameleon.jpg"  # Just the filename, path will be added automatically
 
   - title: "Science Trivia"
     content: "What is the chemical symbol for gold?"
@@ -52,7 +53,7 @@ questions:
     difficulty: 3
     tags: ["movies", "awards"]
     timer: 40
-    photo: "https://example.com/parasite-poster.jpg"
+    image: "parasite-poster.jpg"  # Just the filename, path will be added automatically
 
   - title: "Sports Knowledge"
     content: "How many players are on a basketball team on the court at one time?"

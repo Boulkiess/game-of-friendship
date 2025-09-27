@@ -78,7 +78,21 @@ export const usePlayerViewStyles = () => {
         status: "text-gray-600 capitalize",
         grid: "grid grid-cols-1 lg:grid-cols-3 gap-6",
         questionSection: "lg:col-span-2",
-        scoreboardSection: "lg:col-span-1"
+        scoreboardSection: "lg:col-span-1",
+        questionDisplay: "bg-white p-6 rounded-lg shadow-md min-h-96 flex flex-col",
+        questionTitle: "text-3xl font-bold text-center mb-6",
+        questionContent: "text-xl text-center leading-relaxed flex-1 flex items-center justify-center",
+        timerDisplay: "text-center text-lg font-semibold text-orange-600 mt-4",
+        noQuestion: "text-center p-8 bg-gray-100 rounded-lg text-gray-600 text-xl",
+        imageQuestionLayout: `
+            flex flex-col items-center justify-center min-h-96 py-8 space-y-6
+        `,
+        questionImage: `
+            max-w-full max-h-80 w-auto h-auto object-contain rounded-lg shadow-lg
+        `,
+        questionContentBottom: `
+            text-center text-lg text-gray-700 px-4 max-w-2xl
+        `
     }), []);
 };
 
@@ -140,15 +154,15 @@ export const useQuestionSelectorStyles = () => {
         questionsHeader: "text-xl font-semibold mb-4",
         questionsList: "space-y-2 max-h-96 overflow-y-auto",
         getQuestionItem: (isSelected: boolean) =>
-            `p-3 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-50'
-            }`,
+            `p-3 border rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-50'}`,
         questionContent: "flex justify-between items-start",
         questionTitle: "font-semibold",
         questionPreview: "text-sm text-gray-600 mt-1",
         questionTags: "flex items-center space-x-2 mt-2 text-xs",
         difficultyBadge: "bg-blue-100 px-2 py-1 rounded",
         timerBadge: "bg-yellow-100 px-2 py-1 rounded",
-        tagBadge: "bg-gray-100 px-2 py-1 rounded"
+        tagBadge: "bg-gray-100 px-2 py-1 rounded",
+        imageBadge: "px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full"
     }), []);
 };
 
@@ -185,8 +199,7 @@ export const useScoreControlStyles = () => {
         sectionTitle: "font-semibold mb-2",
         answerModeButtons: "flex space-x-2",
         getModeButton: (isSelected: boolean) =>
-            `px-3 py-1 rounded capitalize ${isSelected ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
-            }`,
+            `px-3 py-1 rounded capitalize ${isSelected ? 'bg-blue-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`,
         answererList: "space-y-1",
         answererLabel: "flex items-center",
         radioInput: "mr-2",
@@ -224,8 +237,8 @@ export const useGameMasterViewStyles = () => {
         title: "text-4xl font-bold text-red-600 mb-2",
         stateButtons: "flex justify-center space-x-2",
         getStateButton: (isActive: boolean) =>
-            `px-4 py-2 rounded capitalize ${isActive ? 'bg-red-500 text-white' : 'bg-gray-200 hover:bg-gray-300'
-            }`,
+            `px-4 py-2 rounded capitalize ${isActive ? 'bg-red-500 text-white' : 'bg-gray-200 hover:bg-gray-300'}`,
+        startGameButton: "mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600",
         setupGrid: "grid grid-cols-1 lg:grid-cols-2 gap-6",
         ongoingGrid: "grid grid-cols-1 lg:grid-cols-3 gap-6",
         ongoingLeft: "lg:col-span-2 space-y-6",
@@ -273,6 +286,10 @@ export const useMessageBasedPlayerViewStyles = () => {
         questionTitle: "text-6xl font-bold bg-gradient-to-r from-gray-800 to-blue-800 bg-clip-text text-transparent mb-8 text-center leading-tight",
         questionSubtitle: "text-xl text-blue-700 mb-6 text-center font-medium",
         questionContent: "text-4xl text-gray-700 text-center leading-relaxed font-medium",
+        // Image question styles
+        imageQuestionLayout: "flex flex-col items-center justify-center space-y-6 flex-1",
+        questionImage: "max-w-full max-h-80 w-auto h-auto object-contain rounded-lg shadow-lg",
+        questionContentBottom: "text-center text-lg text-gray-700 px-4 max-w-2xl",
         // Timer styles - more prominent
         timerContainer: "fixed top-8 right-8 bg-gradient-to-br from-white to-orange-50 rounded-full shadow-2xl p-4 z-40 border-3 border-orange-200",
         timerDisplay: "flex justify-center items-center",
@@ -292,12 +309,12 @@ export const TEAM_COLORS = [
     { name: 'Blue', value: 'rgb(59, 130, 246)', bg: 'bg-blue-500', border: 'border-blue-500' },
     { name: 'Green', value: 'rgb(34, 197, 94)', bg: 'bg-green-500', border: 'border-green-500' },
     { name: 'Yellow', value: 'rgb(234, 179, 8)', bg: 'bg-yellow-500', border: 'border-yellow-500' },
+    { name: 'Rose', value: 'rgb(244, 63, 94)', bg: 'bg-rose-500', border: 'border-rose-500' },
     { name: 'Purple', value: 'rgb(147, 51, 234)', bg: 'bg-purple-500', border: 'border-purple-500' },
-    { name: 'Pink', value: 'rgb(236, 72, 153)', bg: 'bg-pink-500', border: 'border-pink-500' },
-    { name: 'Indigo', value: 'rgb(99, 102, 241)', bg: 'bg-indigo-500', border: 'border-indigo-500' },
-    { name: 'Orange', value: 'rgb(249, 115, 22)', bg: 'bg-orange-500', border: 'border-orange-500' },
-    { name: 'Teal', value: 'rgb(20, 184, 166)', bg: 'bg-teal-500', border: 'border-teal-500' },
-    { name: 'Cyan', value: 'rgb(6, 182, 212)', bg: 'bg-cyan-500', border: 'border-cyan-500' },
     { name: 'Emerald', value: 'rgb(16, 185, 129)', bg: 'bg-emerald-500', border: 'border-emerald-500' },
-    { name: 'Rose', value: 'rgb(244, 63, 94)', bg: 'bg-rose-500', border: 'border-rose-500' }
+    { name: 'Cyan', value: 'rgb(6, 182, 212)', bg: 'bg-cyan-500', border: 'border-cyan-500' },
+    { name: 'Teal', value: 'rgb(20, 184, 166)', bg: 'bg-teal-500', border: 'border-teal-500' },
+    { name: 'Orange', value: 'rgb(249, 115, 22)', bg: 'bg-orange-500', border: 'border-orange-500' },
+    { name: 'Indigo', value: 'rgb(99, 102, 241)', bg: 'bg-indigo-500', border: 'border-indigo-500' },
+    { name: 'Pink', value: 'rgb(236, 72, 153)', bg: 'bg-pink-500', border: 'border-pink-500' }
 ];

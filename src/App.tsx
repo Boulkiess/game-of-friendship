@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GameProvider } from './context/GameContext';
-import { PlayerView } from './components/PlayerView';
+import { PlayerView } from './components/player/PlayerView';
 import { GameMasterView } from './components/gamemaster/GameMasterView';
 import { useAppStyles } from './hooks/useStyles';
 import './App.css';

@@ -31,11 +31,6 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                     <span className={styles.difficultyTag}>
                         Difficulty: {question.difficulty}
                     </span>
-                    {question.timer && (
-                        <span className={styles.tag}>
-                            Timer: {question.timer}s
-                        </span>
-                    )}
                     {question.tags.map(tag => (
                         <span key={tag} className={styles.tag}>
                             {tag}
@@ -45,7 +40,9 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
             </div>
 
             <div className={styles.content}>
-                <p className={styles.contentText}>{question.content}</p>
+                <p className={`${styles.contentText} ${question.image ? 'text-2xl font-semibold' : ''}`}>
+                    {question.content}
+                </p>
             </div>
 
             {question.photo && (

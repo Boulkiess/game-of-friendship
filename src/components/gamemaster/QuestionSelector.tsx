@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useGame } from '../../context/GameContext';
 import { Question, QuestionFilters } from '../../types';
-import { loadQuestionsFromFile } from '../../utils/yamlLoader';
+import { loadQuestionsFromFile, getImageFilename } from '../../utils/yamlLoader';
 import { useQuestionSelectorStyles } from '../../hooks/useStyles';
 
 export const QuestionSelector: React.FC = () => {
@@ -71,7 +71,7 @@ export const QuestionSelector: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* File Upload */}
+      {/* File Upload Section */}
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Load Questions</h3>
         <input
@@ -81,7 +81,7 @@ export const QuestionSelector: React.FC = () => {
           className={styles.fileInput}
         />
         <p className={styles.helpText}>
-          Upload a YAML file containing questions ({questions.length} questions loaded)
+          Upload a YAML file containing questions. The file should have a 'questions' array with question objects.
         </p>
       </div>
 
@@ -192,6 +192,11 @@ export const QuestionSelector: React.FC = () => {
                     {question.timer && (
                       <span className={styles.timerBadge}>
                         Timer: {question.timer}s
+                      </span>
+                    )}
+                    {question.image && (
+                      <span className={styles.imageBadge}>
+                        📷 Image: {getImageFilename(question.image)}
                       </span>
                     )}
                     {question.tags.map(tag => (
