@@ -287,18 +287,7 @@ export const PlayerSetup: React.FC = () => {
 
       {/* Teams Section */}
       <div className={styles.section}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className={styles.sectionTitle}>Teams</h3>
-          <button
-            onClick={handleCreateNewTeam}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center space-x-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span>New Team</span>
-          </button>
-        </div>
+        <h3 className={styles.sectionTitle}>Teams</h3>
 
         <div className={styles.teamsList}>
           {teams.map(renderTeamEditor)}
@@ -307,6 +296,19 @@ export const PlayerSetup: React.FC = () => {
               No teams created yet. Click "New Team" to get started!
             </p>
           )}
+
+          {/* New Team Button - moved to bottom */}
+          <div className="mt-4 text-center">
+            <button
+              onClick={handleCreateNewTeam}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 flex items-center space-x-2 mx-auto"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>New Team</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
