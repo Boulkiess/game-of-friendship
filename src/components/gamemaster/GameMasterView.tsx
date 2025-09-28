@@ -4,7 +4,6 @@ import { PlayerSetup } from './PlayerSetup';
 import { QuestionSelector } from './QuestionSelector';
 import { QuestionLoader } from './QuestionLoader';
 import { TimerControl } from './TimerControl';
-import { ScoreControl } from './ScoreControl';
 import { Scoreboard } from '../shared/Scoreboard';
 import { useGameMasterViewStyles } from '../../hooks/useStyles';
 import { ScoreboardControl } from './ScoreboardControl';
@@ -52,7 +51,6 @@ export const GameMasterView: React.FC = () => {
           <div className={styles.ongoingGrid}>
             <div className={styles.ongoingLeft}>
               <QuestionSelector />
-              <ScoreControl />
             </div>
             
             <div className={styles.ongoingRight}>

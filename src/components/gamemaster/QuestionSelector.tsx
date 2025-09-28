@@ -2,8 +2,10 @@ import { PlayArrow, Stop } from '@mui/icons-material';
 import React, { useMemo, useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { useQuestionSelectorStyles } from '../../hooks/useStyles';
-import { QuestionFilters } from '../../types';
+import { Question, QuestionFilters } from '../../types';
 import { getImageFilename } from '../../utils/yamlLoader';
+import { QuestionSetupModal } from './QuestionSetupModal';
+import { ScoreScoringModal } from './ScoreScoringModal';
 
 export const QuestionSelector: React.FC = () => {
   const {
@@ -23,6 +25,10 @@ export const QuestionSelector: React.FC = () => {
   });
 
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [showSetupModal, setShowSetupModal] = useState(false);
+  const [showScoringModal, setShowScoringModal] = useState(false);
+  const [selectedQuestionForModal, setSelectedQuestionForModal] = useState<Question | null>(null);
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -55,6 +61,22 @@ export const QuestionSelector: React.FC = () => {
         ? (prev[type] as any).filter((item: any) => item !== value)
         : [...(prev[type] as any), value]
     } as QuestionFilters));
+  };
+
+  const handlePlayQuestion = (question: Question) => {
+    setSelectedQuestionForModal(question);
+    setShowSetupModal(true);
+  };
+
+  const handleSetupComplete = () => {
+    setShowSetupModal(false);
+    setShowScoringModal(true);
+  };
+
+  const handleCloseModals = () => {
+    setShowSetupModal(false);
+    setShowScoringModal(false);
+    setSelectedQuestionForModal(null);
   };
 
   return (
@@ -183,7 +205,7 @@ export const QuestionSelector: React.FC = () => {
                         if (isCurrentlyDisplayed) {
                           clearPlayerView();
                         } else {
-                          sendQuestionToPlayers(question);
+                          handlePlayQuestion(question);
                         }
                       }}
                       className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isCurrentlyDisplayed
@@ -200,6 +222,22 @@ export const QuestionSelector: React.FC = () => {
           })}
         </div>
       </div>
+
+      {/* Modals */}
+      {showSetupModal && selectedQuestionForModal && (
+        <QuestionSetupModal
+          question={selectedQuestionForModal}
+          onClose={handleCloseModals}
+          onPlay={handleSetupComplete}
+        />
+      )}
+
+      {showScoringModal && selectedQuestionForModal && (
+        <ScoreScoringModal
+          question={selectedQuestionForModal}
+          onClose={handleCloseModals}
+        />
+      )}
     </div>
   );
 };
