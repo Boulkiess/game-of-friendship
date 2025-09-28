@@ -1,9 +1,10 @@
 import yaml from 'js-yaml';
-import { Question, Player } from '../types';
+import { Question, Player, Team } from '../types';
 
 export interface GameData {
   questions: Question[];
   players?: Player[];
+  teams?: Team[];
 }
 
 export const loadQuestionsFromYAML = async (yamlContent: string): Promise<Question[]> => {
@@ -78,7 +79,16 @@ export const loadGameDataFromYAML = async (yamlContent: string): Promise<GameDat
       })
       : [];
 
-    return { questions, players };
+    const teams: Team[] = data.teams
+      ? data.teams.map((t: any) => ({
+        id: t.id || `team-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name: t.name,
+        color: t.color || '#3B82F6',
+        players: Array.isArray(t.players) ? t.players : []
+      }))
+      : [];
+
+    return { questions, players, teams };
   } catch (error) {
     throw new Error(`Failed to parse YAML: ${error}`);
   }

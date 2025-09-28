@@ -1,9 +1,9 @@
-import React, { useState, useMemo } from 'react';
 import { PlayArrow, Stop } from '@mui/icons-material';
+import React, { useMemo, useState } from 'react';
 import { useGame } from '../../context/GameContext';
-import { Question, QuestionFilters } from '../../types';
-import { loadQuestionsFromFile, getImageFilename } from '../../utils/yamlLoader';
 import { useQuestionSelectorStyles } from '../../hooks/useStyles';
+import { QuestionFilters } from '../../types';
+import { getImageFilename, loadQuestionsFromFile } from '../../utils/yamlLoader';
 
 export const QuestionSelector: React.FC = () => {
   const {

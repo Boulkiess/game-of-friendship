@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode, useEffect, useRef } from 'react';
 import { GameContext, Player, Team, Question, GameState, TimerState, AnswerMode, ScoreboardMode } from '../types';
-import { loadQuestionsFromYAML, loadGameDataFromYAML } from '../utils/yamlLoader';
+import { loadGameDataFromYAML } from '../utils/yamlLoader';
 
 interface GameContextType extends GameContext {
   addPlayer: (player: Player) => void;
@@ -39,6 +39,7 @@ type GameAction =
   | { type: 'UPDATE_TEAM'; payload: { teamId: string; team: Team } }
   | { type: 'LOAD_QUESTIONS'; payload: Question[] }
   | { type: 'LOAD_INITIAL_PLAYERS'; payload: Player[] }
+  | { type: 'LOAD_INITIAL_TEAMS'; payload: Team[] }
   | { type: 'SET_CURRENT_QUESTION'; payload: Question | null }
   | { type: 'UPDATE_SCORE'; payload: { name: string; points: number } }
   | { type: 'SET_GAME_STATE'; payload: GameState }
@@ -103,6 +104,24 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
       const existingPlayerNames = state.players.map(p => p.name);
       const newPlayers = action.payload.filter(p => !existingPlayerNames.includes(p.name));
       return { ...state, players: [...state.players, ...newPlayers] };
+    case 'LOAD_INITIAL_TEAMS':
+      // Merge with existing teams, avoiding duplicates by name
+      const existingTeamNames = state.teams.map(t => t.name);
+      const newTeams = action.payload
+        .filter(t => !existingTeamNames.includes(t.name))
+        .map(team => ({
+          ...team,
+          players: team.players.map(playerName => {
+            // Convert player name strings to Player objects
+            if (typeof playerName === 'string') {
+              // Find the player in the current state
+              const existingPlayer = state.players.find(p => p.name === playerName);
+              return existingPlayer || { name: playerName };
+            }
+            return playerName;
+          })
+        }));
+      return { ...state, teams: [...state.teams, ...newTeams] };
     case 'SET_CURRENT_QUESTION':
       return { ...state, currentQuestion: action.payload };
     case 'UPDATE_SCORE':
@@ -185,11 +204,25 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.log('YAML content loaded:', yamlContent.substring(0, 100) + '...');
 
           const gameData = await loadGameDataFromYAML(yamlContent);
-          console.log(`Loaded ${gameData.questions.length} questions and ${gameData.players?.length || 0} players`);
+          console.log(`Loaded ${gameData.questions.length} questions, ${gameData.players?.length || 0} players, and ${gameData.teams?.length || 0} teams`);
 
           dispatch({ type: 'LOAD_QUESTIONS', payload: gameData.questions });
           if (gameData.players && gameData.players.length > 0) {
             dispatch({ type: 'LOAD_INITIAL_PLAYERS', payload: gameData.players });
+          }
+          if (gameData.teams && gameData.teams.length > 0) {
+            // Convert team player names to Player objects
+            const teamsWithPlayerObjects = gameData.teams.map(team => ({
+              ...team,
+              players: team.players.map(playerName => {
+                if (typeof playerName === 'string') {
+                  const player = gameData.players?.find(p => p.name === playerName);
+                  return player || { name: playerName };
+                }
+                return playerName;
+              })
+            }));
+            dispatch({ type: 'LOAD_INITIAL_TEAMS', payload: teamsWithPlayerObjects });
           }
         } else {
           console.warn(`game.yaml file not found. Status: ${response.status}.`);

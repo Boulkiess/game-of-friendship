@@ -9,6 +9,17 @@ players:
     profilePicture: "diana.jpg"
   - "Eve"  # Player without profile picture
 
+teams:
+  - name: "Team Alpha"
+    color: "#FF6B6B"
+    players: ["Alice", "Bob"]
+  - name: "Team Beta"
+    color: "#4ECDC4"
+    players: ["Charlie", "Diana"]
+  - name: "Team Gamma"
+    color: "#45B7D1"
+    players: ["Eve"]
+
 questions:
   - title: "Capital City Knowledge"
     content: "What is the capital city of Australia?"
