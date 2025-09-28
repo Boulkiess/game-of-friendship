@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { PlayArrow, Stop } from '@mui/icons-material';
 import { useGame } from '../../context/GameContext';
 import { Question, QuestionFilters } from '../../types';
 import { loadQuestionsFromFile, getImageFilename } from '../../utils/yamlLoader';
@@ -150,13 +151,6 @@ export const QuestionSelector: React.FC = () => {
             <h4 className="font-semibold mb-2">Selected Question: {currentQuestion.title}</h4>
             <div className="flex space-x-2">
               <button
-                onClick={() => sendQuestionToPlayers(currentQuestion)}
-                className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                disabled={displayedQuestion?.title === currentQuestion.title}
-              >
-                {displayedQuestion?.title === currentQuestion.title ? 'Already Sent' : 'Send to Players'}
-              </button>
-              <button
                 onClick={clearPlayerView}
                 className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                 disabled={!displayedQuestion}
@@ -173,42 +167,64 @@ export const QuestionSelector: React.FC = () => {
         )}
 
         <div className={styles.questionsList}>
-          {filteredQuestions.map(question => (
-            <div
-              key={question.title}
-              className={styles.getQuestionItem(currentQuestion?.title === question.title)}
-              onClick={() => setCurrentQuestion(question)}
-            >
-              <div className={styles.questionContent}>
-                <div>
-                  <h4 className={styles.questionTitle}>{question.title}</h4>
-                  <p className={styles.questionPreview}>
-                    {question.content.substring(0, 100)}...
-                  </p>
-                  <div className={styles.questionTags}>
-                    <span className={styles.difficultyBadge}>
-                      Difficulty: {question.difficulty}
-                    </span>
-                    {question.timer && (
-                      <span className={styles.timerBadge}>
-                        Timer: {question.timer}s
+          {filteredQuestions.map(question => {
+            const isCurrentlyDisplayed = displayedQuestion?.title === question.title;
+
+            return (
+              <div
+                key={question.title}
+                className={styles.getQuestionItem(currentQuestion?.title === question.title)}
+                onClick={() => setCurrentQuestion(question)}
+              >
+                <div className={styles.questionContent}>
+                  <div className="flex-1">
+                    <h4 className={styles.questionTitle}>{question.title}</h4>
+                    <p className={styles.questionPreview}>
+                      {question.content.substring(0, 100)}...
+                    </p>
+                    <div className={styles.questionTags}>
+                      <span className={styles.difficultyBadge}>
+                        Difficulty: {question.difficulty}
                       </span>
-                    )}
-                    {question.image && (
-                      <span className={styles.imageBadge}>
-                        📷 Image: {getImageFilename(question.image)}
-                      </span>
-                    )}
-                    {question.tags.map(tag => (
-                      <span key={tag} className={styles.tagBadge}>
-                        {tag}
-                      </span>
-                    ))}
+                      {question.timer && (
+                        <span className={styles.timerBadge}>
+                          Timer: {question.timer}s
+                        </span>
+                      )}
+                      {question.image && (
+                        <span className={styles.imageBadge}>
+                          📷 Image: {getImageFilename(question.image)}
+                        </span>
+                      )}
+                      {question.tags.map(tag => (
+                        <span key={tag} className={styles.tagBadge}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center ml-4 self-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (isCurrentlyDisplayed) {
+                          clearPlayerView();
+                        } else {
+                          sendQuestionToPlayers(question);
+                        }
+                      }}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${isCurrentlyDisplayed
+                        ? 'bg-red-500 hover:bg-red-600 text-white'
+                        : 'bg-green-500 hover:bg-green-600 text-white'
+                        }`}
+                    >
+                      {isCurrentlyDisplayed ? <Stop /> : <PlayArrow />}
+                    </button>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
