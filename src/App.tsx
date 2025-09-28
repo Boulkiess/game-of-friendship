@@ -5,6 +5,7 @@ import { GameMasterView } from './components/gamemaster/GameMasterView';
 import { useAppStyles } from './hooks/useStyles';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Slideshow } from '@mui/icons-material';
 
 const Navigation: React.FC = () => {
   const navigate = useNavigate();
@@ -21,16 +22,10 @@ const Navigation: React.FC = () => {
         <h1 className={styles.navTitle}>Quiz Game of Friendship</h1>
         <div className={styles.navButtons}>
           <button
-            onClick={() => navigate('/')}
-            className={styles.getNavButtonGameMaster(location.pathname === '/')}
-          >
-            Game Master
-          </button>
-          <button
             onClick={openPlayerView}
             className={styles.getNavButton(location.pathname === '/player-view')}
           >
-            Open Player View
+            <Slideshow />
           </button>
         </div>
       </div>
