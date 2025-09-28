@@ -145,6 +145,7 @@ export const useQuestionSelectorStyles = () => {
         checkboxLabel: "flex items-center",
         checkboxInput: "mr-1",
         tagSpan: "text-sm bg-gray-100 px-2 py-1 rounded",
+        horizontalRule: "border-t border-gray-300 my-6",
         questionsHeader: "text-xl font-semibold mb-4",
         questionsList: "space-y-2 max-h-96 overflow-y-auto",
         getQuestionItem: (isSelected: boolean) =>

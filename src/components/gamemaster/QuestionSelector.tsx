@@ -59,7 +59,7 @@ export const QuestionSelector: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* Filters */}
+      {/* Combined Filters and Questions Section */}
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Filter Questions</h3>
 
@@ -110,10 +110,10 @@ export const QuestionSelector: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Question List */}
-      <div className={styles.section}>
+        {/* Horizontal Rule */}
+        <hr className={styles.horizontalRule} />
+
         <h3 className={styles.questionsHeader}>
           Questions ({filteredQuestions.length})
         </h3>
