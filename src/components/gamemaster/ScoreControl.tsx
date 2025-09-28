@@ -239,15 +239,47 @@ export const ScoreControl: React.FC = () => {
       return {
         teamName: team.name,
         count: teamChampions.length,
-        champions: teamChampions
+        champions: teamChampions,
+        teamPlayerCount: team.players.length
       };
     });
 
-    const allCounts = teamChampionCounts.map(t => t.count);
-    const minCount = Math.min(...allCounts);
-    const maxCount = Math.max(...allCounts);
-    const hasEqualChampions = minCount === maxCount && minCount > 0;
-    const currentChampionCount = hasEqualChampions ? minCount : 0;
+    // Find the maximum possible champions (minimum team size)
+    const maxPossibleChampions = Math.min(...teams.map(team => team.players.length));
+
+    if (maxPossibleChampions === 0) {
+      return (
+        <div>
+          <h4 className={styles.sectionTitle}>Select Champions:</h4>
+          <div className="text-center text-gray-500 py-4">
+            No teams available for champions mode.
+          </div>
+        </div>
+      );
+    }
+
+    // Check if we have a valid champions setup (same logic as scoring buttons)
+    const teamsWithChampions = teamChampionCounts.filter(team => team.count > 0);
+    const hasValidSetup = teamsWithChampions.length >= 2 &&
+      teamsWithChampions.every(team => team.count === teamsWithChampions[0].count);
+
+    // Create champion level options (1 to maxPossibleChampions)
+    const championLevels = Array.from({ length: maxPossibleChampions }, (_, i) => i + 1);
+
+    // For each champion level, find which teams can participate and check their status
+    const levelStatus = championLevels.map(level => {
+      const eligibleTeams = teamChampionCounts.filter(team => team.teamPlayerCount >= level);
+      const teamsWithCorrectCount = eligibleTeams.filter(team => team.count === level);
+      const isReady = eligibleTeams.length >= 2 && teamsWithCorrectCount.length === eligibleTeams.length && level > 0;
+
+      return {
+        level,
+        eligibleTeams,
+        teamsWithCorrectCount,
+        isReady,
+        canUse: eligibleTeams.length >= 2
+      };
+    });
 
     return (
       <div>
@@ -255,21 +287,35 @@ export const ScoreControl: React.FC = () => {
 
         <div className="mb-4 p-3 bg-blue-50 rounded-lg">
           <div className="text-sm text-gray-700">
-            <p className="font-medium mb-1">Championship Status:</p>
-            {hasEqualChampions ? (
+            <p className="font-medium mb-2">Championship Status:</p>
+            {hasValidSetup ? (
               <p className="text-green-700">
-                ✅ Ready! Each team has {currentChampionCount} champion{currentChampionCount !== 1 ? 's' : ''}
+                ✅ Ready for {teamsWithChampions[0].count} champion{teamsWithChampions[0].count !== 1 ? 's' : ''} mode!
+                ({teamsWithChampions.length} teams participating)
               </p>
             ) : (
               <div>
-                <p className="text-orange-700 mb-1">
-                  ⚠️ Teams need equal numbers of champions
+                  <p className="text-orange-700 mb-2">
+                    ⚠️ Select equal numbers of champions for teams to compete
                 </p>
-                <div className="text-xs space-y-1">
-                  {teamChampionCounts.map(({ teamName, count }) => (
-                    <div key={teamName} className="flex justify-between">
-                      <span>{teamName}:</span>
-                      <span className="font-medium">{count} champion{count !== 1 ? 's' : ''}</span>
+                  <div className="text-xs space-y-2">
+                    {levelStatus.filter(s => s.canUse).map(status => (
+                      <div key={status.level}>
+                        <span className="font-medium">
+                          {status.level} Champion{status.level !== 1 ? 's' : ''} Mode:
+                        </span>
+                        <div className="ml-2 space-y-1">
+                          {status.eligibleTeams.map(team => (
+                            <div key={team.teamName} className={`${team.count === status.level ? 'text-green-600' : 'text-orange-600'}`}>
+                              {team.teamName}: {team.count}/{status.level} selected
+                            </div>
+                          ))}
+                          {teamChampionCounts.filter(team => team.teamPlayerCount < status.level).length > 0 && (
+                            <div className="text-gray-500 italic">
+                              Excluded: {teamChampionCounts.filter(team => team.teamPlayerCount < status.level).map(team => team.teamName).join(', ')} (not enough players)
+                            </div>
+                          )}
+                        </div>
                     </div>
                   ))}
                 </div>
@@ -292,6 +338,9 @@ export const ScoreControl: React.FC = () => {
                   />
                   <span className="text-sm text-gray-600">
                     ({teamChampions.length} champion{teamChampions.length !== 1 ? 's' : ''} selected)
+                    <span className="ml-2 text-xs">
+                      Can send up to {team.players.length} champion{team.players.length !== 1 ? 's' : ''}
+                    </span>
                   </span>
                 </div>
 
@@ -440,78 +489,127 @@ export const ScoreControl: React.FC = () => {
       return {
         teamName: team.name,
         count: teamChampions.length,
-        champions: teamChampions
+        champions: teamChampions,
+        teamPlayerCount: team.players.length
       };
     });
 
-    const allCounts = teamChampionCounts.map(t => t.count);
-    const minCount = Math.min(...allCounts);
-    const maxCount = Math.max(...allCounts);
-    const hasEqualChampions = minCount === maxCount && minCount > 0;
+    // Find teams that have at least one champion selected
+    const teamsWithChampions = teamChampionCounts.filter(team => team.count > 0);
 
-    if (!hasEqualChampions) {
+    // Check if we have at least 2 teams and all have the same number of champions
+    const hasValidSetup = teamsWithChampions.length >= 2 &&
+      teamsWithChampions.every(team => team.count === teamsWithChampions[0].count);
+
+    if (!hasValidSetup) {
       return (
-        <div className="text-center text-gray-500 py-4">
-          Select the same number of champions from each team to proceed
+        <div>
+          <h4 className={styles.sectionTitle}>Award Points to Team:</h4>
+          <div className="text-center text-gray-500 py-4">
+            Select the same number of champions from at least 2 teams to proceed
+          </div>
+
+          <div className={styles.pointsContainer}>
+            <input
+              type="number"
+              value={customPoints}
+              onChange={(e) => setCustomPoints(parseInt(e.target.value) || 0)}
+              className={styles.pointsInput}
+              min="0"
+              disabled
+            />
+            <span>points</span>
+          </div>
+
+          <div className={styles.actionButtons}>
+            <div className="grid grid-cols-1 gap-2">
+              {teams.map(team => (
+                <div key={team.id} className="flex space-x-2">
+                  <button
+                    disabled
+                    className={`${styles.correctButton} opacity-50 cursor-not-allowed`}
+                  >
+                    {team.name} Correct (+{currentQuestion?.difficulty})
+                  </button>
+                  <button
+                    disabled
+                    className={`${styles.wrongButton} opacity-50 cursor-not-allowed`}
+                  >
+                    {team.name} Wrong (-1)
+                  </button>
+                  <button
+                    disabled
+                    className={`${styles.customButton} opacity-50 cursor-not-allowed`}
+                  >
+                    {team.name} Custom (+{customPoints})
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       );
     }
 
-    const championCount = minCount;
+    const championCount = teamsWithChampions[0].count;
 
     return (
       <div>
         <h4 className={styles.sectionTitle}>Award Points to Team:</h4>
 
-        <div className={styles.pointsContainer}>
-          <input
-            type="number"
-            value={customPoints}
-            onChange={(e) => setCustomPoints(parseInt(e.target.value) || 0)}
-            className={styles.pointsInput}
-            min="0"
-          />
-          <span>points</span>
-        </div>
+        <div className="mb-6">
+          <h5 className="font-medium mb-3 text-blue-700">
+            {championCount} Champion{championCount !== 1 ? 's' : ''} Mode
+            ({teamsWithChampions.length} teams participating)
+          </h5>
 
-        <div className={styles.actionButtons}>
-          <div className="grid grid-cols-1 gap-2">
-            {teams.map(team => (
-              <div key={team.id} className="flex space-x-2">
-                <button
-                  onClick={() => currentQuestion && awardPoints(team.name, currentQuestion.difficulty)}
-                  className={styles.correctButton}
-                >
-                  {team.name} Correct (+{currentQuestion?.difficulty})
-                </button>
-                <button
-                  onClick={() => awardPoints(team.name, -1)}
-                  className={styles.wrongButton}
-                >
-                  {team.name} Wrong (-1)
-                </button>
-                <button
-                  onClick={() => awardPoints(team.name, customPoints)}
-                  className={styles.customButton}
-                >
-                  {team.name} Custom (+{customPoints})
-                </button>
-              </div>
-            ))}
+          <div className={styles.pointsContainer}>
+            <input
+              type="number"
+              value={customPoints}
+              onChange={(e) => setCustomPoints(parseInt(e.target.value) || 0)}
+              className={styles.pointsInput}
+              min="0"
+            />
+            <span>points</span>
           </div>
-        </div>
 
-        <div className="mt-4 bg-gray-50 p-3 rounded">
-          <h5 className="font-semibold mb-2">Selected Champions ({championCount} per team):</h5>
-          <div className="space-y-1 text-sm">
-            {teams.map(team => {
-              const teamChampions = selectedChampions?.get(team.name) || [];
-              return (
-                <div key={team.id}>
-                  <span className="font-medium text-blue-700">{team.name}:</span> {teamChampions.join(', ')}
+          <div className={styles.actionButtons}>
+            <div className="grid grid-cols-1 gap-2">
+              {teamsWithChampions.map(team => (
+                <div key={team.teamName} className="flex space-x-2">
+                  <button
+                    onClick={() => currentQuestion && awardPoints(team.teamName, currentQuestion.difficulty)}
+                    className={styles.correctButton}
+                  >
+                    {team.teamName} Correct (+{currentQuestion?.difficulty})
+                  </button>
+                  <button
+                    onClick={() => awardPoints(team.teamName, -1)}
+                    className={styles.wrongButton}
+                  >
+                    {team.teamName} Wrong (-1)
+                  </button>
+                  <button
+                    onClick={() => awardPoints(team.teamName, customPoints)}
+                    className={styles.customButton}
+                  >
+                    {team.teamName} Custom (+{customPoints})
+                  </button>
                 </div>
-              );
-            })}
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-3 bg-gray-50 p-3 rounded">
+            <h6 className="font-semibold mb-2">Selected Champions:</h6>
+            <div className="space-y-1 text-sm">
+              {teamsWithChampions.map(team => (
+                <div key={team.teamName}>
+                  <span className="font-medium text-blue-700">{team.teamName}:</span> {team.champions.join(', ')}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

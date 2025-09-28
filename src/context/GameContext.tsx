@@ -84,19 +84,16 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
         players: state.players.filter(p => p.name !== action.payload)
       };
     case 'ADD_TEAM':
-      return { ...state, teams: [...state.teams, action.payload] };
+      const newTeamsWithAdd = [...state.teams, action.payload];
+      return { ...state, teams: newTeamsWithAdd };
     case 'REMOVE_TEAM':
-      return {
-        ...state,
-        teams: state.teams.filter(t => t.id !== action.payload)
-      };
+      const newTeamsWithRemove = state.teams.filter(t => t.id !== action.payload);
+      return { ...state, teams: newTeamsWithRemove };
     case 'UPDATE_TEAM':
-      return {
-        ...state,
-        teams: state.teams.map(team =>
-          team.id === action.payload.teamId ? action.payload.team : team
-        )
-      };
+      const newTeamsWithUpdate = state.teams.map(team =>
+        team.id === action.payload.teamId ? action.payload.team : team
+      );
+      return { ...state, teams: newTeamsWithUpdate };
     case 'LOAD_QUESTIONS':
       return { ...state, questions: action.payload };
     case 'LOAD_INITIAL_PLAYERS':
@@ -121,6 +118,7 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
             return playerName;
           })
         }));
+
       return { ...state, teams: [...state.teams, ...newTeams] };
     case 'SET_CURRENT_QUESTION':
       return { ...state, currentQuestion: action.payload };
