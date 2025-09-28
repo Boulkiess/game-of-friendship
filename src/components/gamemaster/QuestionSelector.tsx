@@ -3,12 +3,11 @@ import React, { useMemo, useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { useQuestionSelectorStyles } from '../../hooks/useStyles';
 import { QuestionFilters } from '../../types';
-import { getImageFilename, loadQuestionsFromFile } from '../../utils/yamlLoader';
+import { getImageFilename } from '../../utils/yamlLoader';
 
 export const QuestionSelector: React.FC = () => {
   const {
     questions,
-    loadQuestions,
     setCurrentQuestion,
     currentQuestion,
     displayedQuestion,
@@ -24,18 +23,6 @@ export const QuestionSelector: React.FC = () => {
   });
 
   const [searchTerm, setSearchTerm] = useState('');
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const loadedQuestions = await loadQuestionsFromFile(file);
-        loadQuestions(loadedQuestions);
-      } catch (error) {
-        alert(`Error loading questions: ${error}`);
-      }
-    }
-  };
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -72,20 +59,6 @@ export const QuestionSelector: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* File Upload Section */}
-      <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Load Questions</h3>
-        <input
-          type="file"
-          accept=".yaml,.yml"
-          onChange={handleFileUpload}
-          className={styles.fileInput}
-        />
-        <p className={styles.helpText}>
-          Upload a YAML file containing questions. The file should have a 'questions' array with question objects.
-        </p>
-      </div>
-
       {/* Filters */}
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Filter Questions</h3>

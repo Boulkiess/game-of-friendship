@@ -2,6 +2,7 @@ import React from 'react';
 import { useGame } from '../../context/GameContext';
 import { PlayerSetup } from './PlayerSetup';
 import { QuestionSelector } from './QuestionSelector';
+import { QuestionLoader } from './QuestionLoader';
 import { TimerControl } from './TimerControl';
 import { ScoreControl } from './ScoreControl';
 import { Scoreboard } from '../shared/Scoreboard';
@@ -40,7 +41,10 @@ export const GameMasterView: React.FC = () => {
         {gameState === 'setup' && (
           <div className={styles.setupGrid}>
             <PlayerSetup />
-            <QuestionSelector />
+            <div className="space-y-6">
+              <QuestionLoader />
+              <QuestionSelector />
+            </div>
           </div>
         )}
 
