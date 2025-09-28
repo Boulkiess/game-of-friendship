@@ -17,11 +17,11 @@ export const useAppStyles = () => {
 // Timer styles
 export const useTimerStyles = () => {
     return useMemo(() => ({
-        container: "timer-container flex flex-col items-center space-y-4",
-        timerDisplay: "flex justify-center items-center",
-        controls: "flex space-x-3",
-        pauseResumeButton: "px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors",
-        resetButton: "px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+        container: "timer bg-white p-4 rounded-lg shadow text-center",
+        timerDisplay: "mb-4",
+        controls: "flex justify-center space-x-4",
+        pauseResumeButton: "",
+        resetButton: ""
     }), []);
 };
 
@@ -170,10 +170,11 @@ export const useTimerControlStyles = () => {
         quickStartSection: "space-y-2",
         quickStartTitle: "font-semibold",
         quickStartButtons: "flex flex-wrap gap-2",
+        allTimerButtons: "flex flex-wrap gap-2 items-center",
         quickStartButton: "px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600",
-        questionTimerButton: "w-full px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600",
+        questionTimerButton: "px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600",
         customTimerContainer: "flex items-center space-x-2",
-        customTimerInput: "flex-1 px-2 py-1 border rounded",
+        customTimerInput: "w-20 px-2 py-1 border rounded",
         customTimerButton: "px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
     }), []);
 };

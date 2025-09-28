@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { CircularTimer } from './CircularTimer';
 import { useTimerStyles } from '../../hooks/useStyles';
+import { IconButton } from '@mui/material';
+import { PlayArrow, Pause, Refresh } from '@mui/icons-material';
 
 interface TimerProps {
   showControls?: boolean;
@@ -46,18 +48,38 @@ export const Timer: React.FC<TimerProps> = ({ showControls = false, onTimeUp }) 
 
       {showControls && (
         <div className={styles.controls}>
-          <button
+          <IconButton
             onClick={timerState.isActive ? pauseTimer : resumeTimer}
             className={styles.pauseResumeButton}
+            size="large"
+            sx={{
+              backgroundColor: timerState.isActive ? '#ef4444' : '#22c55e',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: timerState.isActive ? '#dc2626' : '#16a34a',
+              },
+              width: 56,
+              height: 56,
+            }}
           >
-            {timerState.isActive ? 'Pause' : 'Resume'}
-          </button>
-          <button
+            {timerState.isActive ? <Pause /> : <PlayArrow />}
+          </IconButton>
+          <IconButton
             onClick={resetTimer}
             className={styles.resetButton}
+            size="large"
+            sx={{
+              backgroundColor: '#6b7280',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: '#4b5563',
+              },
+              width: 56,
+              height: 56,
+            }}
           >
-            Reset
-          </button>
+            <Refresh />
+          </IconButton>
         </div>
       )}
     </div>

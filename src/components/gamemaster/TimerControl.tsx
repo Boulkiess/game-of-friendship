@@ -4,12 +4,16 @@ import { Timer } from '../shared/Timer';
 import { useTimerControlStyles } from '../../hooks/useStyles';
 
 export const TimerControl: React.FC = () => {
-  const { currentQuestion, startTimer } = useGame();
+  const { currentQuestion, startTimer, setTimerInitialValue } = useGame();
   const [customTime, setCustomTime] = useState(30);
   const styles = useTimerControlStyles();
 
   const handleStartTimer = (seconds: number) => {
     startTimer(seconds);
+  };
+
+  const handleSetTimer = (seconds: number) => {
+    setTimerInitialValue(seconds);
   };
 
   return (
@@ -22,61 +26,55 @@ export const TimerControl: React.FC = () => {
         </div>
 
         <div className={styles.quickStartSection}>
-          <h4 className={styles.quickStartTitle}>Quick Start:</h4>
-          <div className={styles.quickStartButtons}>
+          <h4 className={styles.quickStartTitle}>Set Timer:</h4>
+          <div className={styles.allTimerButtons}>
             <button
-              onClick={() => handleStartTimer(30)}
+              onClick={() => handleSetTimer(30)}
               className={styles.quickStartButton}
             >
               30s
             </button>
             <button
-              onClick={() => handleStartTimer(60)}
+              onClick={() => handleSetTimer(60)}
               className={styles.quickStartButton}
             >
               1 min
             </button>
             <button
-              onClick={() => handleStartTimer(120)}
+              onClick={() => handleSetTimer(120)}
               className={styles.quickStartButton}
             >
               2 min
             </button>
             <button
-              onClick={() => handleStartTimer(300)}
+              onClick={() => handleSetTimer(300)}
               className={styles.quickStartButton}
             >
               5 min
             </button>
-          </div>
-        </div>
-
-        {currentQuestion?.timer && (
-          <div>
+            {currentQuestion?.timer && (
+              <button
+                onClick={() => handleSetTimer(currentQuestion.timer!)}
+                className={styles.questionTimerButton}
+              >
+                Question ({currentQuestion.timer}s)
+              </button>
+            )}
+            <input
+              type="number"
+              value={customTime}
+              onChange={(e) => setCustomTime(parseInt(e.target.value) || 0)}
+              className={styles.customTimerInput}
+              placeholder="Custom"
+              min="1"
+            />
             <button
-              onClick={() => handleStartTimer(currentQuestion.timer!)}
-              className={styles.questionTimerButton}
+              onClick={() => handleSetTimer(customTime)}
+              className={styles.customTimerButton}
             >
-              Start Question Timer ({currentQuestion.timer}s)
+              Set
             </button>
           </div>
-        )}
-
-        <div className={styles.customTimerContainer}>
-          <input
-            type="number"
-            value={customTime}
-            onChange={(e) => setCustomTime(parseInt(e.target.value) || 0)}
-            className={styles.customTimerInput}
-            placeholder="Custom time (seconds)"
-            min="1"
-          />
-          <button
-            onClick={() => handleStartTimer(customTime)}
-            className={styles.customTimerButton}
-          >
-            Start Custom
-          </button>
         </div>
       </div>
     </div>

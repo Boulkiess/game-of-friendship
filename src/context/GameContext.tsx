@@ -29,6 +29,7 @@ interface GameContextType extends GameContext {
   clearSelectedChampions: () => void;
   setScoreboardMode: (mode: ScoreboardMode) => void;
   updateTeamColor: (teamId: string, color: string) => void;
+  setTimerInitialValue: (seconds: number) => void;
 }
 
 type GameAction =
@@ -52,7 +53,8 @@ type GameAction =
   | { type: 'SET_SELECTED_CHAMPIONS'; payload: { teamName: string; champions: string[] } }
   | { type: 'CLEAR_SELECTED_CHAMPIONS' }
   | { type: 'SET_SCOREBOARD_MODE'; payload: ScoreboardMode }
-  | { type: 'UPDATE_TEAM_COLOR'; payload: { teamId: string; color: string } };
+  | { type: 'UPDATE_TEAM_COLOR'; payload: { teamId: string; color: string } }
+  | { type: 'SET_TIMER_INITIAL_VALUE'; payload: number };
 
 const initialState: GameContext = {
   players: [],
@@ -169,6 +171,16 @@ function gameReducer(state: GameContext, action: GameAction): GameContext {
             : team
         )
       };
+    case 'SET_TIMER_INITIAL_VALUE':
+      return {
+        ...state,
+        timerState: {
+          ...state.timerState,
+          timeRemaining: action.payload,
+          initialTime: action.payload,
+          isActive: false
+        }
+      };
     default:
       return state;
   }
@@ -279,6 +291,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       type: 'SET_TIMER_STATE',
       payload: { isActive: true, timeRemaining: seconds, initialTime: seconds }
     });
+  };
+
+  const setTimerInitialValue = (seconds: number) => {
+    dispatch({ type: 'SET_TIMER_INITIAL_VALUE', payload: seconds });
   };
 
   const updateTimer = (timeRemaining: number) => {
@@ -403,7 +419,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSelectedChampions,
     clearSelectedChampions,
     setScoreboardMode,
-    updateTeamColor
+    updateTeamColor,
+    setTimerInitialValue
   };
 
   return (
