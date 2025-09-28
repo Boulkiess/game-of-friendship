@@ -44,16 +44,26 @@ export const PlayerSetup: React.FC = () => {
   };
 
   const handleCreateNewTeam = () => {
+    // Find the first available color that's not already used
+    const availableColor = TEAM_COLORS.find(color => !usedColors.includes(color.value));
+
     const newTeam: Team = {
       id: Date.now().toString(),
       name: `New Team (${teams.length + 1})`,
       players: [],
-      color: availableColors[0]?.value || TEAM_COLORS[0].value
+      color: availableColor?.value || TEAM_COLORS[0].value
     };
     addTeam(newTeam);
   };
 
   const handleColorSelect = (teamId: string, color: string) => {
+    // Check if color is already used by another team
+    const isColorInUse = teams.some(team => team.id !== teamId && team.color === color);
+    if (isColorInUse) {
+      // Don't allow selecting a color that's already in use
+      return;
+    }
+
     updateTeamColor(teamId, color);
     setColorPickerTeamId(null);
   };
@@ -108,37 +118,52 @@ export const PlayerSetup: React.FC = () => {
   );
 
   const renderTeamEditor = (team: Team) => {
+    const availablePlayers = players.filter(player =>
+      !allAssignedPlayers.includes(player.name)
+    );
     const isColorPickerOpen = colorPickerTeamId === team.id;
 
     return (
       <div key={team.id} className={styles.teamItem}>
         <div className={styles.teamHeader}>
           <div className="flex items-center space-x-3">
-            <div
-              className={`${styles.teamColorIndicator} cursor-pointer hover:scale-110 transition-transform relative`}
-              style={{ backgroundColor: team.color }}
-              onClick={() => setColorPickerTeamId(isColorPickerOpen ? null : team.id)}
-              title="Click to change color"
-            />
+            <div className="relative inline-block">
+              <div
+                className={`${styles.teamColorIndicator} cursor-pointer hover:scale-110 transition-transform`}
+                style={{ backgroundColor: team.color }}
+                onClick={() => setColorPickerTeamId(isColorPickerOpen ? null : team.id)}
+                title="Click to change color"
+              />
 
-            {/* Color picker dropdown */}
-            {isColorPickerOpen && (
-              <div className="absolute z-10 mt-2 p-2 bg-white border rounded-lg shadow-lg">
-                <div className="grid grid-cols-4 gap-2">
-                  {TEAM_COLORS.map(color => (
-                    <button
-                      key={color.value}
-                      onClick={() => handleColorSelect(team.id, color.value)}
-                      className={`w-8 h-8 rounded-full border-2 cursor-pointer hover:scale-110 transition-transform ${team.color === color.value ? 'border-gray-800' : 'border-gray-300'
-                        }`}
-                      style={{ backgroundColor: color.value }}
-                      title={color.name}
-                      disabled={usedColors.includes(color.value) && color.value !== team.color}
-                    />
-                  ))}
+              {/* Color picker dropdown */}
+              {isColorPickerOpen && (
+                <div className="absolute z-50 top-full left-0 mt-1 p-2 bg-white border rounded-lg shadow-lg min-w-max">
+                  <div className="grid grid-cols-4 gap-2">
+                    {TEAM_COLORS.map(color => {
+                      const isUsedByOtherTeam = teams.some(t => t.id !== team.id && t.color === color.value);
+                      const isCurrentColor = team.color === color.value;
+
+                      return (
+                        <button
+                          key={color.value}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isUsedByOtherTeam) {
+                              handleColorSelect(team.id, color.value);
+                            }
+                          }}
+                          className={`w-8 h-8 rounded-full border-2 transition-transform ${isCurrentColor ? 'border-gray-800 scale-110' : 'border-gray-300 hover:scale-110'
+                            } ${isUsedByOtherTeam ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
+                          style={{ backgroundColor: color.value }}
+                          title={isUsedByOtherTeam ? `${color.name} (Already used)` : color.name}
+                          disabled={isUsedByOtherTeam}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             <input
               type="text"
@@ -214,8 +239,15 @@ export const PlayerSetup: React.FC = () => {
   // Close color picker when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (colorPickerTeamId && !(event.target as Element).closest('.relative')) {
-        setColorPickerTeamId(null);
+      if (colorPickerTeamId) {
+        const target = event.target as Element;
+        // Check if the click is outside the color picker container
+        const colorPickerContainer = target.closest('.relative');
+        const isColorIndicator = target.closest('[title="Click to change color"]');
+
+        if (!colorPickerContainer && !isColorIndicator) {
+          setColorPickerTeamId(null);
+        }
       }
     };
 

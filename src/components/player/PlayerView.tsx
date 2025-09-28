@@ -10,6 +10,7 @@ interface InvolvedPlayer {
   role: string;
   teamSide: 'left' | 'right';
   teamName?: string;
+  corner?: 'top' | 'bottom'; // Add corner property for 4-corner distribution
 }
 
 export const PlayerView: React.FC = () => {
@@ -195,25 +196,64 @@ export const PlayerView: React.FC = () => {
       }
     }
 
-    // Add champions for champions mode
+    // Add champions for champions mode with 4-corner distribution for multiple teams
     if (gameState.answerMode === 'champions' && gameState.selectedChampions) {
       const teamNames = Array.from(gameState.selectedChampions.keys());
-      gameState.selectedChampions.forEach((champions, teamName) => {
-        const teamIndex = teamNames.indexOf(teamName);
-        const teamSide = teamIndex % 2 === 0 ? 'left' : 'right';
 
-        champions.forEach(championName => {
-          const player = gameState.players.find(p => p.name === championName);
-          if (player) {
-            players.push({
-              player,
-              role: `${teamName} champion`,
-              teamSide,
-              teamName
-            });
+      // Check if we have more than 2 teams for 4-corner distribution
+      if (teamNames.length > 2) {
+        gameState.selectedChampions.forEach((champions, teamName) => {
+          const teamIndex = teamNames.indexOf(teamName);
+          // Distribute teams across 4 corners: top-left, top-right, bottom-left, bottom-right
+          let teamSide: 'left' | 'right';
+          let corner: 'top' | 'bottom';
+
+          if (teamIndex === 0) {
+            teamSide = 'left';
+            corner = 'top';
+          } else if (teamIndex === 1) {
+            teamSide = 'right';
+            corner = 'top';
+          } else if (teamIndex === 2) {
+            teamSide = 'left';
+            corner = 'bottom';
+          } else {
+            teamSide = 'right';
+            corner = 'bottom';
           }
+
+          champions.forEach(championName => {
+            const player = gameState.players.find(p => p.name === championName);
+            if (player) {
+              players.push({
+                player,
+                role: `${teamName} champion`,
+                teamSide,
+                teamName,
+                corner
+              });
+            }
+          });
         });
-      });
+      } else {
+      // Original 2-team logic for left/right distribution
+        gameState.selectedChampions.forEach((champions, teamName) => {
+          const teamIndex = teamNames.indexOf(teamName);
+          const teamSide = teamIndex % 2 === 0 ? 'left' : 'right';
+
+          champions.forEach(championName => {
+            const player = gameState.players.find(p => p.name === championName);
+            if (player) {
+              players.push({
+                player,
+                role: `${teamName} champion`,
+                teamSide,
+                teamName
+              });
+            }
+          });
+        });
+      }
     }
 
     return players;
@@ -224,15 +264,65 @@ export const PlayerView: React.FC = () => {
 
     if (involvedPlayers.length === 0) return null;
 
-    // Group players by team side
-    const leftPlayers = involvedPlayers.filter(p => p.teamSide === 'left');
-    const rightPlayers = involvedPlayers.filter(p => p.teamSide === 'right');
+    // Check if we have teams with 4-corner distribution
+    const hasMultipleTeams = gameState?.answerMode === 'champions' &&
+      gameState.selectedChampions &&
+      Array.from(gameState.selectedChampions.keys()).length > 2;
 
     const getPlayerTeamColor = (player: any, teamName?: string) => {
       if (!teamName) return '#6b7280'; // Default gray
       const team = gameState?.teams.find(t => t.name === teamName);
       return team?.color || '#6b7280';
     };
+
+    if (hasMultipleTeams) {
+      // Group players by corner
+      const topLeftPlayers = involvedPlayers.filter(p => p.teamSide === 'left' && (p as any).corner === 'top');
+      const topRightPlayers = involvedPlayers.filter(p => p.teamSide === 'right' && (p as any).corner === 'top');
+      const bottomLeftPlayers = involvedPlayers.filter(p => p.teamSide === 'left' && (p as any).corner === 'bottom');
+      const bottomRightPlayers = involvedPlayers.filter(p => p.teamSide === 'right' && (p as any).corner === 'bottom');
+
+      const renderCornerPlayers = (players: any[], cornerClass: string) => (
+        <div className={cornerClass}>
+          {players.map(({ player, role, teamName }, index) => (
+            <div key={`${player.name}-${index}`} className="flex flex-col items-center mb-4">
+              <div
+                className={styles.floatingPlayerIcon}
+                style={{
+                  borderColor: getPlayerTeamColor(player, teamName),
+                  borderWidth: teamName ? '4px' : '3px'
+                }}
+              >
+                <PlayerAvatar player={player} size="large" />
+              </div>
+              <div className={styles.floatingPlayerLabel} title={`${player.name} - ${role}`}>
+                {player.name}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+
+      return (
+        <div className="fixed inset-0 pointer-events-none z-30">
+          {/* Top Left Corner */}
+          {topLeftPlayers.length > 0 && renderCornerPlayers(topLeftPlayers, "absolute top-4 left-4")}
+
+          {/* Top Right Corner */}
+          {topRightPlayers.length > 0 && renderCornerPlayers(topRightPlayers, "absolute top-4 right-4")}
+
+          {/* Bottom Left Corner */}
+          {bottomLeftPlayers.length > 0 && renderCornerPlayers(bottomLeftPlayers, "absolute bottom-4 left-4")}
+
+          {/* Bottom Right Corner */}
+          {bottomRightPlayers.length > 0 && renderCornerPlayers(bottomRightPlayers, "absolute bottom-4 right-4")}
+        </div>
+      );
+    }
+
+    // Original left/right distribution for 2 teams or other modes
+    const leftPlayers = involvedPlayers.filter(p => p.teamSide === 'left');
+    const rightPlayers = involvedPlayers.filter(p => p.teamSide === 'right');
 
     return (
       <div className={styles.floatingPlayersContainer}>
