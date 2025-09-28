@@ -18,7 +18,6 @@ export interface Question {
   tags: string[];
   targets?: string[]; // Player names who cannot answer
   timer?: number; // Seconds
-  photo?: string; // Optional photo URL
   image?: string; // Path to image in public/images folder
 }
 

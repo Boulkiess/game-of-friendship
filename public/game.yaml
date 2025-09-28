@@ -23,7 +23,7 @@ questions:
     difficulty: 1
     tags: ["math", "multiplication"]
     timer: 45
-    image: "cameleon.jpg"  # Just the filename, path will be added automatically
+    image: "cameleon.jpg"  # Local file - will be prefixed with /images/
 
   - title: "Science Trivia"
     content: "What is the chemical symbol for gold?"
@@ -53,7 +53,7 @@ questions:
     difficulty: 3
     tags: ["movies", "awards"]
     timer: 40
-    image: "parasite-poster.jpg"  # Just the filename, path will be added automatically
+    image: "https://media.newyorker.com/photos/5da4a5c756dcd400082a63ba/master/w_2240,c_limit/Brody-Parasite.jpg"  # External URL - used as-is
 
   - title: "Sports Knowledge"
     content: "How many players are on a basketball team on the court at one time?"

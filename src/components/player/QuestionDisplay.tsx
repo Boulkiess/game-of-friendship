@@ -45,10 +45,10 @@ export const QuestionDisplay: React.FC<QuestionDisplayProps> = ({
                 </p>
             </div>
 
-            {question.photo && (
+            {question.image && (
                 <div className={styles.photoContainer}>
                     <div className={styles.photoWrapper}>
-                        <PhotoDisplay photoUrl={question.photo} alt={question.title} />
+                        <PhotoDisplay photoUrl={question.image} alt={question.title} />
                     </div>
                 </div>
             )}

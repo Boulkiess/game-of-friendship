@@ -288,7 +288,9 @@ export const PlayerView: React.FC = () => {
 
     return (
       <div className={styles.questionContainer}>
-        <h2 className={styles.questionTitle}>{displayedQuestion.title}</h2>
+        <h2 className={displayedQuestion.image ? styles.questionTitleWithImage : styles.questionTitle}>
+          {displayedQuestion.title}
+        </h2>
 
         {displayedQuestion.image ? (
           <div className={styles.imageQuestionLayout}>
@@ -316,7 +318,7 @@ export const PlayerView: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className={styles.questionContent}>
+            <div className={`${styles.questionContent} flex-1 flex items-center justify-center`}>
             {displayedQuestion.content}
           </div>
         )}

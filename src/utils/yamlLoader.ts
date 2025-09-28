@@ -9,7 +9,7 @@ export interface GameData {
 export const loadQuestionsFromYAML = async (yamlContent: string): Promise<Question[]> => {
   try {
     const data = yaml.load(yamlContent) as any;
-    
+
     if (!data.questions || !Array.isArray(data.questions)) {
       throw new Error('Invalid YAML format: questions array not found');
     }
@@ -22,13 +22,28 @@ export const loadQuestionsFromYAML = async (yamlContent: string): Promise<Questi
       tags: q.tags || [],
       targets: q.targets,
       timer: q.timer,
-      photo: q.photo
+      image: q.image ? processImagePath(q.image) : undefined
     }));
 
     return questions;
   } catch (error) {
     throw new Error(`Failed to parse YAML: ${error}`);
   }
+};
+
+const processImagePath = (imagePath: string): string => {
+  // Check if it's already a full URL (starts with http:// or https://)
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+
+  // Check if it's an absolute path (starts with /)
+  if (imagePath.startsWith('/')) {
+    return imagePath;
+  }
+
+  // Otherwise, treat as local file and add the /images/questions/ prefix
+  return `/images/questions/${imagePath}`;
 };
 
 export const loadGameDataFromYAML = async (yamlContent: string): Promise<GameData> => {
@@ -47,7 +62,7 @@ export const loadGameDataFromYAML = async (yamlContent: string): Promise<GameDat
       tags: q.tags || [],
       targets: q.targets,
       timer: q.timer,
-      image: q.image ? `/images/questions/${q.image}` : undefined
+      image: q.image ? processImagePath(q.image) : undefined
     }));
 
     const players: Player[] = data.players
@@ -72,7 +87,7 @@ export const loadGameDataFromYAML = async (yamlContent: string): Promise<GameDat
 export const loadQuestionsFromFile = async (file: File): Promise<Question[]> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = async (event) => {
       try {
         const yamlContent = event.target?.result as string;
@@ -83,7 +98,7 @@ export const loadQuestionsFromFile = async (file: File): Promise<Question[]> => 
         }
 
         const questions = data.questions.map((q: any) => {
-          const imageField = q.image ? `/images/questions/${q.image}` : undefined;
+          const imageField = q.image ? processImagePath(q.image) : undefined;
           console.log('Processing question:', q.title, 'image field:', q.image, 'processed path:', imageField);
 
           return {
@@ -103,7 +118,7 @@ export const loadQuestionsFromFile = async (file: File): Promise<Question[]> => 
         reject(error);
       }
     };
-    
+
     reader.onerror = () => reject(new Error('Failed to read file'));
     reader.readAsText(file);
   });

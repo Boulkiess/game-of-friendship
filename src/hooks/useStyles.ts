@@ -84,15 +84,9 @@ export const usePlayerViewStyles = () => {
         questionContent: "text-xl text-center leading-relaxed flex-1 flex items-center justify-center",
         timerDisplay: "text-center text-lg font-semibold text-orange-600 mt-4",
         noQuestion: "text-center p-8 bg-gray-100 rounded-lg text-gray-600 text-xl",
-        imageQuestionLayout: `
-            flex flex-col items-center justify-center min-h-96 py-8 space-y-6
-        `,
-        questionImage: `
-            max-w-full max-h-80 w-auto h-auto object-contain rounded-lg shadow-lg
-        `,
-        questionContentBottom: `
-            text-center text-lg text-gray-700 px-4 max-w-2xl
-        `
+        imageQuestionLayout: "flex flex-col flex-1",
+        questionImage: "w-full h-auto max-h-[80vh] object-contain rounded-lg shadow-md mb-4 flex-1",
+        questionContentBottom: "text-center text-lg text-gray-700 px-4 max-w-2xl"
     }), []);
 };
 
@@ -284,11 +278,12 @@ export const useMessageBasedPlayerViewStyles = () => {
         // Question styles - enhanced readability with color
         questionContainer: "bg-gradient-to-br from-white via-blue-50 to-indigo-50 rounded-3xl shadow-2xl p-10 mb-8 flex-1 flex flex-col justify-center border-2 border-blue-200",
         questionTitle: "text-6xl font-bold bg-gradient-to-r from-gray-800 to-blue-800 bg-clip-text text-transparent mb-8 text-center leading-tight",
+        questionTitleWithImage: "text-3xl font-bold bg-gradient-to-r from-gray-800 to-blue-800 bg-clip-text text-transparent mb-6 text-center leading-tight",
         questionSubtitle: "text-xl text-blue-700 mb-6 text-center font-medium",
         questionContent: "text-4xl text-gray-700 text-center leading-relaxed font-medium",
         // Image question styles
         imageQuestionLayout: "flex flex-col items-center justify-center space-y-6 flex-1",
-        questionImage: "max-w-full max-h-80 w-auto h-auto object-contain rounded-lg shadow-lg",
+        questionImage: "max-w-full max-h-[50vh] w-auto h-auto object-contain rounded-lg shadow-lg",
         questionContentBottom: "text-center text-lg text-gray-700 px-4 max-w-2xl",
         // Timer styles - more prominent
         timerContainer: "fixed top-8 right-8 bg-gradient-to-br from-white to-orange-50 rounded-full shadow-2xl p-4 z-40 border-3 border-orange-200",
