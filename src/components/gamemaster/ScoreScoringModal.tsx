@@ -37,6 +37,7 @@ export const ScoreScoringModal: React.FC<ScoreScoringModalProps> = ({ question, 
             return updated;
         });
         setPendingPoints({});
+        onClose();
     };
     const {
         players,

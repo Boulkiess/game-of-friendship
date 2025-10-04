@@ -77,6 +77,7 @@ export const QuestionSelector: React.FC = () => {
     setShowSetupModal(false);
     setShowScoringModal(false);
     setSelectedQuestionForModal(null);
+    clearPlayerView();
   };
 
   return (
