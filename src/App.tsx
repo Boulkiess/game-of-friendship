@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
-import { GameProvider } from './context/GameContext';
+import React from 'react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
 import { PlayerView } from './components/player/PlayerView';
 import { GameMasterView } from './components/gamemaster/GameMasterView';
 import { useAppStyles } from './hooks/useStyles';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Slideshow } from '@mui/icons-material';
+import { GameProvider } from './context/GameContext';
 
 const Navigation: React.FC = () => {
   const navigate = useNavigate();
@@ -33,29 +37,46 @@ const Navigation: React.FC = () => {
   );
 };
 
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+});
+
 function App() {
   return (
-    <GameProvider>
-      <Router>
-        <div className="app">
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <GameProvider>
+        <Router>
           <Routes>
             <Route path="/" element={
-              <>
-                <Navigation />
-                <main>
-                  <GameMasterView />
-                </main>
-              </>
+              <Container maxWidth="xl">
+                <Box sx={{ py: 4 }}>
+                  <Box>
+                    <Navigation />
+                    <main>
+                      <GameMasterView />
+                    </main>
+                  </Box>
+                </Box>
+              </Container>
             } />
             <Route path="/player-view" element={
-              <main>
+              <Box component="main" sx={{ width: '100vw', height: '100vh', p: 0, m: 0 }}>
                 <PlayerView />
-              </main>
+              </Box>
             } />
           </Routes>
-        </div>
-      </Router>
-    </GameProvider>
+        </Router>
+      </GameProvider>
+    </ThemeProvider>
   );
 }
 
