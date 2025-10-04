@@ -33,7 +33,7 @@ export const QuestionSelector: React.FC = () => {
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
     questions.forEach(q => q.tags.forEach(tag => tagSet.add(tag)));
-    return Array.from(tagSet);
+    return Array.from(tagSet).sort((a, b) => a.localeCompare(b));
   }, [questions]);
 
   const filteredQuestions = useMemo(() => {
