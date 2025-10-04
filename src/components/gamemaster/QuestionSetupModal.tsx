@@ -4,6 +4,7 @@ import { Question } from '../../types';
 import { useScoreControlStyles } from '../../hooks/useStyles';
 import { EntityDisplay, createEntityInfo } from '../shared/EntityDisplay';
 import { createSelectableItems } from '../shared/PlayerTeamSelector';
+import { Person, Group } from '@mui/icons-material';
 
 interface QuestionSetupModalProps {
     question: Question;
@@ -304,15 +305,53 @@ export const QuestionSetupModal: React.FC<QuestionSetupModalProps> = ({ question
                     <div className="mb-6">
                         <h4 className={styles.sectionTitle}>Answer Mode:</h4>
                         <div className={styles.answerModeButtons}>
-                            {(['individual', 'duel', 'teams', 'teams-duel', 'champions'] as const).map(mode => (
-                                <button
-                                    key={mode}
-                                    onClick={() => handleAnswerModeChange(mode)}
-                                    className={styles.getModeButton(answerMode === mode)}
-                                >
-                                    {mode.replace('-', ' ')}
-                                </button>
-                            ))}
+                            <button
+                                onClick={() => handleAnswerModeChange('individual')}
+                                className={styles.getModeButton(answerMode === 'individual')}
+                                title="Individual"
+                            >
+                                <Person />
+                            </button>
+                            <button
+                                onClick={() => handleAnswerModeChange('duel')}
+                                className={styles.getModeButton(answerMode === 'duel')}
+                                title="Duel"
+                            >
+                                <div className="flex items-center space-x-1">
+                                    <Person />
+                                    <span className="text-sm">vs</span>
+                                    <Person />
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => handleAnswerModeChange('teams')}
+                                className={styles.getModeButton(answerMode === 'teams')}
+                                title="Teams"
+                            >
+                                <Group />
+                            </button>
+                            <button
+                                onClick={() => handleAnswerModeChange('teams-duel')}
+                                className={styles.getModeButton(answerMode === 'teams-duel')}
+                                title="Teams Duel"
+                            >
+                                <div className="flex items-center space-x-1">
+                                    <Group />
+                                    <span className="text-sm">vs</span>
+                                    <Group />
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => handleAnswerModeChange('champions')}
+                                className={styles.getModeButton(answerMode === 'champions')}
+                                title="Champions"
+                            >
+                                <div className="flex items-center space-x-1">
+                                    <span className="text-lg">👑</span>
+                                    <span className="text-sm">vs</span>
+                                    <span className="text-lg">👑</span>
+                                </div>
+                            </button>
                         </div>
                     </div>
 
