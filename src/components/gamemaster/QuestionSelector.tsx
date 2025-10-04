@@ -145,15 +145,7 @@ export const QuestionSelector: React.FC = () => {
         {currentQuestion && (
           <div className="mb-4 p-3 bg-blue-50 rounded-lg">
             <h4 className="font-semibold mb-2">Selected Question: {currentQuestion.title}</h4>
-            <div className="flex space-x-2">
-              <button
-                onClick={clearPlayerView}
-                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                disabled={!displayedQuestion}
-              >
-                Clear Player View
-              </button>
-            </div>
+            {/* Removed Clear Player View button */}
             {displayedQuestion && (
               <p className="text-sm text-gray-600 mt-1">
                 Players currently see: {displayedQuestion.title}
@@ -206,6 +198,7 @@ export const QuestionSelector: React.FC = () => {
                         if (isCurrentlyDisplayed) {
                           clearPlayerView();
                         } else {
+                          setCurrentQuestion(question); // Also select the question
                           handlePlayQuestion(question);
                         }
                       }}

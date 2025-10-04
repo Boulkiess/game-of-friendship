@@ -17,7 +17,7 @@ teams:
     color: "#4ECDC4"
     players: ["Charlie", "Diana"]
   - name: "Team Gamma"
-    color: "#45B7D1"
+    color: "#4501D1"
     players: ["Eve"]
 
 questions:

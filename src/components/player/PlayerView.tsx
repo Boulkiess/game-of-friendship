@@ -270,9 +270,10 @@ export const PlayerView: React.FC = () => {
       Array.from(gameState.selectedChampions.keys()).length > 2;
 
     const getPlayerTeamColor = (player: any, teamName?: string) => {
-      if (!teamName) return '#6b7280'; // Default gray
+      // if (!teamName) return '#6b7280'; // Default gray
       const team = gameState?.teams.find(t => t.name === teamName);
-      return team?.color || '#6b7280';
+      return team?.color;
+      // return team?.color || '#6b7280';
     };
 
     if (hasMultipleTeams) {
@@ -287,17 +288,26 @@ export const PlayerView: React.FC = () => {
           {players.map(({ player, role, teamName }, index) => (
             <div key={`${player.name}-${index}`} className="flex flex-col items-center mb-4">
               <div
-                className={styles.floatingPlayerIcon}
-                style={{
-                  borderColor: getPlayerTeamColor(player, teamName),
-                  borderWidth: teamName ? '4px' : '3px'
-                }}
+              // style={{
+              //   border: `4px solid ${getPlayerTeamColor(player, teamName)}`,
+              //   borderRadius: '50%',
+              //   display: 'flex',
+              //   alignItems: 'center',
+              //   justifyContent: 'center',
+              //   background: '#fff',
+              //   width: 80,
+              //   height: 80,
+              //   boxSizing: 'border-box',
+              //   overflow: 'hidden',
+              // }}
               >
-                <PlayerAvatar player={player} size="large" />
+                {/* <div style={{ width: 72, height: 72, display: 'flex', alignItems: 'center', justifyContent: 'center' }}> */}
+                <PlayerAvatar player={player} size="large" teamColor={getPlayerTeamColor(player, teamName)} />
+                {/* </div> */}
               </div>
-              <div className={styles.floatingPlayerLabel} title={`${player.name} - ${role}`}>
+              {/* <div className={styles.floatingPlayerLabel} title={`${player.name} - ${role}`}>
                 {player.name}
-              </div>
+              </div> */}
             </div>
           ))}
         </div>
@@ -332,17 +342,26 @@ export const PlayerView: React.FC = () => {
             {leftPlayers.map(({ player, role, teamName }, index) => (
               <div key={`left-${player.name}-${index}`} className="flex flex-col items-center">
                 <div
-                  className={styles.floatingPlayerIcon}
-                  style={{
-                    borderColor: getPlayerTeamColor(player, teamName),
-                    borderWidth: teamName ? '4px' : '3px'
-                  }}
+                // style={{
+                //   border: `4px solid ${getPlayerTeamColor(player, teamName)}`,
+                //   borderRadius: '50%',
+                //   display: 'flex',
+                //   alignItems: 'center',
+                //   justifyContent: 'center',
+                //   background: '#fff',
+                //   width: 80,
+                //   height: 80,
+                //   boxSizing: 'border-box',
+                //   overflow: 'hidden',
+                // }}
                 >
-                  <PlayerAvatar player={player} size="large" />
+                  {/* <div style={{ width: 72, height: 72, display: 'flex', alignItems: 'center', justifyContent: 'center' }}> */}
+                  <PlayerAvatar player={player} size="large" teamColor={getPlayerTeamColor(player, teamName)} />
+                  {/* </div> */}
                 </div>
-                <div className={styles.floatingPlayerLabel} title={`${player.name} - ${role}`}>
+                {/* <div className={styles.floatingPlayerLabel} title={`${player.name} - ${role}`}>
                   {player.name}
-                </div>
+                </div> */}
               </div>
             ))}
           </div>
