@@ -236,7 +236,7 @@ export const PlayerView: React.FC = () => {
           });
         });
       } else {
-      // Original 2-team logic for left/right distribution
+        // Original 2-team logic for left/right distribution
         gameState.selectedChampions.forEach((champions, teamName) => {
           const teamIndex = teamNames.indexOf(teamName);
           const teamSide = teamIndex % 2 === 0 ? 'left' : 'right';
@@ -408,7 +408,7 @@ export const PlayerView: React.FC = () => {
             </div>
           </div>
         ) : (
-            <div className={`${styles.questionContent} flex-1 flex items-center justify-center`}>
+          <div className={`${styles.questionContent} flex-1 flex items-center justify-center`}>
             {displayedQuestion.content}
           </div>
         )}
@@ -455,13 +455,17 @@ export const PlayerView: React.FC = () => {
               <div className={styles.waitingContainer}>
                 <h2 className={styles.waitingTitle}>Waiting for next question...</h2>
                 <p className={styles.waitingText}>The Game Master will send the next question shortly.</p>
+                {/* Avatars hidden while waiting for next question */}
               </div>
             ) : (
-              renderCurrentQuestion()
+              <>
+                {renderCurrentQuestion()}
+                {renderTimer()}
+                {renderScoreboard()}
+                {renderFloatingPlayers()}
+              </>
             )}
-            {renderTimer()}
-            {renderScoreboard()}
-            {renderFloatingPlayers()}
+            {/* Only show floating players when a question is displayed */}
           </div>
         )}
 
