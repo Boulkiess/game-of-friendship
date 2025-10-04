@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { Timer } from '../shared/Timer';
 import { useTimerControlStyles } from '../../hooks/useStyles';
+import { getTimerColor } from '../../utils/timerColor';
 
 type TimerControlMode = 'full' | 'compact';
 
@@ -31,10 +32,20 @@ export const TimerControl: React.FC<TimerControlProps> = ({ mode = 'full' }) => 
   };
 
   if (mode === 'compact') {
+    // Use shared getTimerColor utility
+    const initialTime = timerState.initialTime || 1;
+    const progress = initialTime > 0 ? timerState.timeRemaining / initialTime : 0;
+    const compactTimerColor = getTimerColor({ progress, isPaused: !timerState.isActive });
+
     return (
       <div className={styles.compactContainer}>
         <div>
-          <span className={styles.compactTime}>{timerState.timeRemaining}s</span>
+          <span
+            className={styles.compactTime}
+            style={{ color: compactTimerColor }}
+          >
+            {timerState.timeRemaining}s
+          </span>
         </div>
         <div className={styles.compactRow}>
           <button className={styles.compactQuickSet} onClick={() => handleSetTimer(30)}>30s</button>
