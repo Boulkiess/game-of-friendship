@@ -192,6 +192,7 @@ export const useTimerControlStyles = () => {
 // ScoreControl styles
 export const useScoreControlStyles = () => {
     return useMemo(() => ({
+        pointsAwardActive: "bg-green-100 ring-4 ring-green-300",
         container: "score-control bg-white p-4 rounded-lg shadow space-y-4",
         title: "text-xl font-semibold",
         noQuestionContainer: "score-control bg-white p-4 rounded-lg shadow",
@@ -229,7 +230,15 @@ export const useScoreControlStyles = () => {
         duelRadioInput: "mr-2",
         selectedOpponentsInfo: "bg-blue-50 p-3 rounded mb-4",
         selectedOpponentsTitle: "font-semibold mb-2",
-        selectedOpponentsList: "text-sm text-gray-700"
+        selectedOpponentsList: "text-sm text-gray-700",
+        pointsAwardCard: "bg-white rounded-md p-6 mt-6 mb-6 border",
+        pointsAwardColumn: "flex flex-col items-center bg-gray-50 rounded-lg p-4 min-w-[120px] cursor-pointer hover:bg-green-50 hover:ring-2 hover:ring-green-200 transition-all duration-200",
+        pointsAwardName: "font-bold mb-2",
+        pointsAwardButtons: "flex flex-row gap-2 mb-2",
+        pointsAwardPending: "text-sm text-gray-700",
+        pointsAwardInputRow: "flex flex-col items-center mt-4 gap-4",
+        pointsAwardInput: "border rounded px-2 py-1 w-20 text-center",
+        pointsAwardValidate: "px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
     }), []);
 };
 

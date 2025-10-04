@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
+import { PlayerAvatar } from '../shared/PlayerAvatar';
+import { TeamAvatar } from '../shared/TeamAvatar';
 import { useGame } from '../../context/GameContext';
 import { Question } from '../../types';
 import { useScoreControlStyles } from '../../hooks/useStyles';
@@ -10,6 +14,30 @@ interface ScoreScoringModalProps {
 }
 
 export const ScoreScoringModal: React.FC<ScoreScoringModalProps> = ({ question, onClose }) => {
+    // Track which avatar was last clicked for feedback
+    const [activeAvatar, setActiveAvatar] = useState<string | null>(null);
+    // Store pending points before validation
+    const [pendingPoints, setPendingPoints] = useState<{ [name: string]: number }>({});
+
+    // Add points to pending (not yet validated)
+    const attributePoints = (name: string, points: number) => {
+        setPendingPoints(prev => ({ ...prev, [name]: (prev[name] || 0) + points }));
+    };
+
+    // Validate all pending points
+    const handleValidate = () => {
+        Object.entries(pendingPoints).forEach(([name, points]) => {
+            if (points !== 0) updateScore(name, points);
+        });
+        setPointsByName(prev => {
+            const updated = { ...prev };
+            Object.entries(pendingPoints).forEach(([name, points]) => {
+                updated[name] = (updated[name] || 0) + points;
+            });
+            return updated;
+        });
+        setPendingPoints({});
+    };
     const {
         players,
         teams,
@@ -24,180 +52,112 @@ export const ScoreScoringModal: React.FC<ScoreScoringModalProps> = ({ question, 
 
     const [customPoints, setCustomPoints] = useState(1);
     const [selectedPlayer, setSelectedPlayer] = useState('');
+    const [pointsByName, setPointsByName] = useState<{ [name: string]: number }>({});
 
     const awardPoints = (playerOrTeamName: string, points: number) => {
         updateScore(playerOrTeamName, points);
+        setPointsByName(prev => ({ ...prev, [playerOrTeamName]: (prev[playerOrTeamName] || 0) + points }));
     };
 
-    const renderDuelScoring = () => {
-        const isDuelMode = answerMode === 'duel' || answerMode === 'teams-duel';
-        if (!isDuelMode) return null;
+    // Columns layout for scoring
+    const renderColumnsScoring = () => {
+        let involved: Array<{ name: string, type: 'player' | 'team', avatar: React.ReactNode }> = [];
+        if (answerMode === 'individual' && selectedAnswerer) {
+            const player = players.find(p => p.name === selectedAnswerer);
+            if (player) involved.push({ name: player.name, type: 'player', avatar: <PlayerAvatar player={player} size="large" /> });
+        } else if ((answerMode === 'duel' || answerMode === 'teams-duel') && selectedOpponent1 && selectedOpponent2) {
+            const p1 = players.find(p => p.name === selectedOpponent1);
+            const p2 = players.find(p => p.name === selectedOpponent2);
+            if (p1) involved.push({ name: p1.name, type: 'player', avatar: <PlayerAvatar player={p1} size="large" /> });
+            if (p2) involved.push({ name: p2.name, type: 'player', avatar: <PlayerAvatar player={p2} size="large" /> });
+        } else if (answerMode === 'teams') {
+            teams.forEach(team => involved.push({ name: team.name, type: 'team', avatar: <TeamAvatar team={team} size="large" /> }));
+        } else if (answerMode === 'champions' && selectedChampions) {
+            teams.forEach(team => {
+                const champs = selectedChampions.get(team.name);
+                if (champs && champs.length > 0) {
+                    involved.push({ name: team.name, type: 'team', avatar: <TeamAvatar team={team} size="large" /> });
+                }
+            });
+        }
+
+        if (involved.length === 0) return null;
+
+
+        // Avatar click handler: set only clicked player's pending points, others to zero
+        const handleAvatarClick = (name: string) => {
+            setPendingPoints(prev => {
+                const updated: { [name: string]: number } = {};
+                involved.forEach(({ name: n }) => {
+                    updated[n] = n === name ? question.difficulty : 0;
+                });
+                return updated;
+            });
+            setActiveAvatar(name);
+            setTimeout(() => setActiveAvatar(null), 600); // Remove highlight after 600ms
+        };
 
         return (
-            <div>
-                <h4 className={styles.sectionTitle}>Award Points to Winner:</h4>
-
-                <div className={styles.pointsContainer}>
-                    <input
-                        type="number"
-                        value={customPoints}
-                        onChange={(e) => setCustomPoints(parseInt(e.target.value) || 0)}
-                        className={styles.pointsInput}
-                        min="0"
-                    />
-                    <span>points</span>
-                </div>
-
-                <div className={styles.actionButtons}>
-                    <div className={styles.buttonRow}>
-                        <button
-                            onClick={() => selectedOpponent1 && awardPoints(selectedOpponent1, question.difficulty)}
-                            disabled={!selectedOpponent1}
-                            className={styles.correctButton}
+            <div className={styles.pointsAwardCard}>
+                <div className="flex flex-row gap-6 justify-center">
+                    {involved.map(({ name, type, avatar }) => (
+                        <div
+                            key={name}
+                            className={
+                                `${styles.pointsAwardColumn} transition-all duration-200 ` +
+                                (activeAvatar === name ? styles.pointsAwardActive : '')
+                            }
                         >
-                            {selectedOpponent1} Wins (+{question.difficulty})
-                        </button>
-                        <button
-                            onClick={() => selectedOpponent2 && awardPoints(selectedOpponent2, question.difficulty)}
-                            disabled={!selectedOpponent2}
-                            className={styles.correctButton}
-                        >
-                            {selectedOpponent2} Wins (+{question.difficulty})
-                        </button>
-                    </div>
-
-                    <div className={styles.buttonRow}>
-                        <button
-                            onClick={() => selectedOpponent1 && awardPoints(selectedOpponent1, customPoints)}
-                            disabled={!selectedOpponent1}
-                            className={styles.customButton}
-                        >
-                            {selectedOpponent1} Custom (+{customPoints})
-                        </button>
-                        <button
-                            onClick={() => selectedOpponent2 && awardPoints(selectedOpponent2, customPoints)}
-                            disabled={!selectedOpponent2}
-                            className={styles.customButton}
-                        >
-                            {selectedOpponent2} Custom (+{customPoints})
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const renderChampionsScoring = () => {
-        if (answerMode !== 'champions') return null;
-
-        const teamChampionCounts = teams.map(team => {
-            const teamChampions = selectedChampions?.get(team.name) || [];
-            return {
-                teamName: team.name,
-                count: teamChampions.length,
-                champions: teamChampions
-            };
-        });
-
-        const teamsWithChampions = teamChampionCounts.filter(team => team.count > 0);
-
-        return (
-            <div>
-                <h4 className={styles.sectionTitle}>Award Points to Team:</h4>
-
-                <div className={styles.pointsContainer}>
-                    <input
-                        type="number"
-                        value={customPoints}
-                        onChange={(e) => setCustomPoints(parseInt(e.target.value) || 0)}
-                        className={styles.pointsInput}
-                        min="0"
-                    />
-                    <span>points</span>
-                </div>
-
-                <div className={styles.actionButtons}>
-                    <div className="grid grid-cols-1 gap-2">
-                        {teamsWithChampions.map(team => (
-                            <div key={team.teamName} className="flex space-x-2">
+                            <div
+                                className="mb-2 cursor-pointer"
+                                onClick={() => handleAvatarClick(name)}
+                                title={`Add ${question.difficulty} points`}
+                            >
+                                {avatar}
+                            </div>
+                            <div className={styles.pointsAwardName}>{name}</div>
+                            <div className={styles.pointsAwardButtons}>
                                 <button
-                                    onClick={() => awardPoints(team.teamName, question.difficulty)}
-                                    className={styles.correctButton}
+                                    className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-xl"
+                                    onClick={() => attributePoints(name, -customPoints)}
+                                    aria-label="Remove points"
                                 >
-                                    {team.teamName} Correct (+{question.difficulty})
+                                    <RemoveIcon fontSize="inherit" />
                                 </button>
                                 <button
-                                    onClick={() => awardPoints(team.teamName, -1)}
-                                    className={styles.wrongButton}
+                                    className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-xl"
+                                    onClick={() => attributePoints(name, customPoints)}
+                                    aria-label="Add points"
                                 >
-                                    {team.teamName} Wrong (-1)
-                                </button>
-                                <button
-                                    onClick={() => awardPoints(team.teamName, customPoints)}
-                                    className={styles.customButton}
-                                >
-                                    {team.teamName} Custom (+{customPoints})
+                                    <AddIcon fontSize="inherit" />
                                 </button>
                             </div>
-                        ))}
-                    </div>
+                            <div className={styles.pointsAwardPending}>
+                                {pendingPoints[name] !== undefined && pendingPoints[name] !== 0 ? (
+                                    <span className={pendingPoints[name] > 0 ? "text-green-600" : "text-red-600"}>
+                                        {pendingPoints[name] > 0 ? `(+${pendingPoints[name]})` : `(${pendingPoints[name]})`}
+                                    </span>
+                                ) : null}
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            </div>
-        );
-    };
-
-    const renderRegularScoring = () => {
-        const isRegularMode = answerMode === 'individual' || answerMode === 'teams';
-        if (!isRegularMode) return null;
-
-        return (
-            <div>
-                <h4 className={styles.sectionTitle}>Award Points:</h4>
-
-                <div className={styles.pointsContainer}>
-                    <input
-                        type="number"
-                        value={customPoints}
-                        onChange={(e) => setCustomPoints(parseInt(e.target.value) || 0)}
-                        className={styles.pointsInput}
-                        min="0"
-                    />
-                    <span>points</span>
-                </div>
-
-                <div className={styles.actionButtons}>
-                    <div className={styles.buttonRow}>
-                        <button
-                            onClick={() => selectedAnswerer && awardPoints(selectedAnswerer, question.difficulty)}
-                            disabled={!selectedAnswerer}
-                            className={styles.correctButton}
-                        >
-                            Correct (+{question.difficulty})
-                        </button>
-                        <button
-                            onClick={() => selectedAnswerer && awardPoints(selectedAnswerer, -1)}
-                            disabled={!selectedAnswerer}
-                            className={styles.wrongButton}
-                        >
-                            Wrong (-1)
-                        </button>
-                    </div>
-
+                <div className={styles.pointsAwardInputRow}>
                     <button
-                        onClick={() => selectedAnswerer && awardPoints(selectedAnswerer, customPoints)}
-                        disabled={!selectedAnswerer}
-                        className={styles.customButton}
-                    >
-                        Custom Points (+{customPoints})
-                    </button>
+                        className={styles.pointsAwardValidate}
+                        onClick={handleValidate}
+                        disabled={Object.keys(pendingPoints).length === 0}
+                    >Validate</button>
                 </div>
             </div>
         );
     };
+
+    // ...existing code...
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-lg w-full">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full">
                 <div className="flex justify-between items-center p-6 border-b">
                     <h2 className="text-xl font-semibold">Score Question</h2>
                     <button
@@ -220,43 +180,8 @@ export const ScoreScoringModal: React.FC<ScoreScoringModalProps> = ({ question, 
                         <TimerControl mode="compact" />
                     </div>
 
-                    {/* Scoring based on mode */}
-                    {renderRegularScoring()}
-                    {renderDuelScoring()}
-                    {renderChampionsScoring()}
-
-                    {/* Manual Score Adjustment */}
-                    <div className="pt-4 border-t mt-6">
-                        <h4 className={styles.sectionTitle}>Manual Score Adjustment:</h4>
-                        <div className={styles.manualAdjustment}>
-                            <select
-                                value={selectedPlayer}
-                                onChange={(e) => setSelectedPlayer(e.target.value)}
-                                className={styles.select}
-                            >
-                                <option value="">Select player/team</option>
-                                {players.map(p => (
-                                    <option key={p.name} value={p.name}>{p.name} (Player)</option>
-                                ))}
-                                {teams.map(t => (
-                                    <option key={t.id} value={t.name}>{t.name} (Team)</option>
-                                ))}
-                            </select>
-                            <input
-                                type="number"
-                                value={customPoints}
-                                onChange={(e) => setCustomPoints(parseInt(e.target.value) || 0)}
-                                className={styles.manualInput}
-                            />
-                            <button
-                                onClick={() => selectedPlayer && awardPoints(selectedPlayer, customPoints)}
-                                disabled={!selectedPlayer}
-                                className={styles.applyButton}
-                            >
-                                Apply
-                            </button>
-                        </div>
-                    </div>
+                    {/* Columns scoring layout */}
+                    {renderColumnsScoring()}
                 </div>
 
                 <div className="flex justify-end p-6 border-t">
