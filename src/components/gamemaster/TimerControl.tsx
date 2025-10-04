@@ -3,8 +3,14 @@ import { useGame } from '../../context/GameContext';
 import { Timer } from '../shared/Timer';
 import { useTimerControlStyles } from '../../hooks/useStyles';
 
-export const TimerControl: React.FC = () => {
-  const { currentQuestion, startTimer, setTimerInitialValue } = useGame();
+type TimerControlMode = 'full' | 'compact';
+
+interface TimerControlProps {
+  mode?: TimerControlMode;
+}
+
+export const TimerControl: React.FC<TimerControlProps> = ({ mode = 'full' }) => {
+  const { currentQuestion, timerState, startTimer, setTimerInitialValue, resetTimer, pauseTimer, resumeTimer } = useGame();
   const [customTime, setCustomTime] = useState(30);
   const styles = useTimerControlStyles();
 
@@ -12,19 +18,83 @@ export const TimerControl: React.FC = () => {
     startTimer(seconds);
   };
 
+  const handleResumeTimer = () => {
+    resumeTimer();
+  };
+
   const handleSetTimer = (seconds: number) => {
     setTimerInitialValue(seconds);
   };
 
+  const handlePauseTimer = () => {
+    pauseTimer();
+  };
+
+  if (mode === 'compact') {
+    return (
+      <div className={styles.compactContainer}>
+        <div>
+          <span className={styles.compactTime}>{timerState.timeRemaining}s</span>
+        </div>
+        <div className={styles.compactRow}>
+          <button className={styles.compactQuickSet} onClick={() => handleSetTimer(30)}>30s</button>
+          <button className={styles.compactQuickSet} onClick={() => handleSetTimer(60)}>1m</button>
+          <button className={styles.compactQuickSet} onClick={() => handleSetTimer(120)}>2m</button>
+          <button className={styles.compactQuickSet} onClick={() => handleSetTimer(300)}>5m</button>
+          {currentQuestion?.timer && (
+            <button className={styles.compactQuickSet} onClick={() => handleSetTimer(currentQuestion.timer!)}>
+              Q ({currentQuestion.timer}s)
+            </button>
+          )}
+        </div>
+        <div className={styles.compactRow}>
+          {timerState.isActive ? (
+            <button
+              className={styles.compactStart}
+              onClick={handlePauseTimer}
+            >
+              Pause
+            </button>
+          ) : (
+            <button
+              className={styles.compactStart}
+              onClick={timerState.timeRemaining > 0 ? handleResumeTimer : () => handleStartTimer(customTime)}
+            >
+              Start
+            </button>
+          )}
+          <button
+            className={styles.compactReset}
+            onClick={resetTimer}
+          >
+            Reset
+          </button>
+          <input
+            type="number"
+            value={customTime}
+            onChange={e => setCustomTime(parseInt(e.target.value) || 0)}
+            className={styles.compactInput}
+            min="1"
+          />
+          <button
+            className={styles.compactQuickSet}
+            onClick={() => handleSetTimer(customTime)}
+          >
+            Set
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Full mode
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>Timer Control</h3>
-      
       <div className={styles.content}>
         <div className={styles.timerDisplay}>
           <Timer showControls={true} />
         </div>
-
         <div className={styles.quickStartSection}>
           <h4 className={styles.quickStartTitle}>Set Timer:</h4>
           <div className={styles.allTimerButtons}>

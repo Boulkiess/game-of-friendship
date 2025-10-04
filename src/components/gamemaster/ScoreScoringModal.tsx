@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { Question } from '../../types';
 import { useScoreControlStyles } from '../../hooks/useStyles';
+import { TimerControl } from './TimerControl';
 
 interface ScoreScoringModalProps {
     question: Question;
@@ -208,12 +209,15 @@ export const ScoreScoringModal: React.FC<ScoreScoringModalProps> = ({ question, 
                 </div>
 
                 <div className="p-6">
-                    {/* Question Info */}
+                    {/* Question Info & Timer */}
                     <div className={styles.questionInfo}>
                         <h4 className={styles.questionTitle}>{question.title}</h4>
                         <div className={styles.answerBox}>
                             <strong>Answer:</strong> {question.answer}
                         </div>
+                    </div>
+                    <div className="mt-4">
+                        <TimerControl mode="compact" />
                     </div>
 
                     {/* Scoring based on mode */}

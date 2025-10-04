@@ -176,7 +176,16 @@ export const useTimerControlStyles = () => {
         questionTimerButton: "px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600",
         customTimerContainer: "flex items-center space-x-2",
         customTimerInput: "w-20 px-2 py-1 border rounded",
-        customTimerButton: "px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+        customTimerButton: "px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600",
+        // Compact mode styles
+        compactContainer: "flex flex-col items-center p-2 bg-gray-50 rounded border border-gray-200",
+        compactTime: "text-lg font-mono text-gray-700",
+        compactButton: "px-2 py-1 text-xs rounded focus:outline-none",
+        compactStart: "px-2 py-1 text-xs rounded focus:outline-none bg-blue-500 text-white hover:bg-blue-600",
+        compactReset: "px-2 py-1 text-xs rounded focus:outline-none bg-gray-300 text-gray-700 hover:bg-gray-400",
+        compactInput: "w-14 px-1 py-1 text-xs border rounded",
+        compactQuickSet: "px-2 py-1 text-xs rounded focus:outline-none bg-gray-200 text-gray-700 hover:bg-gray-300",
+        compactRow: "flex gap-2 mt-2"
     }), []);
 };
 
